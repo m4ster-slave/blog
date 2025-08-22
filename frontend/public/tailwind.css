@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "https://unpkg.com/open-props/normalize.min.css";
+@import "https://unpkg.com/open-props/buttons.min.css";
+@import "https://unpkg.com/open-props";
+
+
+body {
+  font-family: BRegular;
+  text-align: center;
+}
+
+.link-reset {
+  @apply text-inherit no-underline hover:no-underline focus:no-underline visited:text-inherit active:text-inherit hover:opacity-70;
+}
