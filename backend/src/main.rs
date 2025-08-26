@@ -2,14 +2,21 @@ use axum::{Json, Router, extract::Query, http::StatusCode, routing::get};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 
 #[tokio::main]
 async fn main() {
+    let cors = CorsLayer::new()
+        .allow_origin(Any) // or restrict to specific origins with .allow_origin("http://0.0.0.0:3001".parse().unwrap())
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     let app = Router::new()
         // serve assets for the blog posts in the /assets folder
         .nest_service("/assets", ServeDir::new("../assets"))
-        .route("/posts", get(get_posts));
+        .route("/posts", get(get_posts))
+        .layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

@@ -8,10 +8,8 @@ mod pages;
 use crate::components::navbar::Navbar;
 use crate::pages::about::About;
 use crate::pages::blog::Blog;
-use crate::pages::contact::Contact;
 use crate::pages::home::Home;
 use crate::pages::not_found::NotFound;
-use crate::pages::project::Projects;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -19,7 +17,7 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Html attr:lang="en" attr:dir="ltr" attr:data-theme="dark" />
-        <Title text="Weger Lukas" />
+        <Title text="Blog" />
         <Meta charset="UTF-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -31,8 +29,6 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/") view=Home />
                     <Route path=path!("/about") view=About/>
                     <Route path=path!("/blog") view=Blog />
-                    <Route path=path!("/projects") view=Projects/>
-                    <Route path=path!("/contact") view=Contact/>
                 </Routes>
             </Router>
         </div>

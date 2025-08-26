@@ -1,5 +1,7 @@
 use leptos::prelude::*;
 
+use crate::components::blog_list::BlogList;
+
 #[component]
 pub fn Blog() -> impl IntoView {
     view! {
@@ -20,7 +22,7 @@ pub fn Blog() -> impl IntoView {
         }>
 
             <div class="container">
-                <h1>"Welcome to Blog"</h1>
+                <BlogList/>
             </div>
         </ErrorBoundary>
     }
