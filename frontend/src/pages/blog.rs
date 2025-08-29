@@ -21,9 +21,9 @@ pub fn Blog() -> impl IntoView {
             }
         }>
 
-            <div class="container">
+            <section class="page-section">
                 <BlogList/>
-            </div>
+            </section>
         </ErrorBoundary>
     }
 }

@@ -19,9 +19,9 @@ pub fn Home() -> impl IntoView {
             }
         }>
 
-            <div class="container">
-                <h1 class="underline">"Welcome to Home"</h1>
-            </div>
+            <section class="page-section">
+                <h1>"Welcome to Home"</h1>
+            </section>
         </ErrorBoundary>
     }
 }

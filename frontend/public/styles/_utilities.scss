@@ -1,0 +1,20 @@
+.link-reset {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:visited,
+  &:active {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}

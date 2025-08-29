@@ -23,7 +23,7 @@ pub fn App() -> impl IntoView {
 
         <Navbar />
 
-        <div class="p-[2rem]">
+        <main class="main-content">
             <Router >
                 <Routes fallback=|| view! { <NotFound /> }>
                     <Route path=path!("/") view=Home />
@@ -31,6 +31,6 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/blog") view=Blog />
                 </Routes>
             </Router>
-        </div>
+        </main>
     }
 }

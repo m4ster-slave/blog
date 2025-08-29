@@ -19,9 +19,9 @@ pub fn About() -> impl IntoView {
             }
         }>
 
-            <div class="container">
+            <section class="page-section">
                 <h1>"Welcome to About"</h1>
-            </div>
+            </section>
         </ErrorBoundary>
     }
 }

@@ -36,35 +36,32 @@ pub fn BlogList() -> impl IntoView {
     let posts = LocalResource::new(fetch_posts);
 
     view! {
-        <div class="p-4 space-y-4">
-            <h2 class="text-2xl font-bold">"Posts"</h2>
-            <div>
+        <div class="blog-list">
                 {move || match posts.get() {
                     Some(Ok(posts)) => view! {
-                        <div>
-                            <ul class="space-y-2">
-                                {posts.into_iter().map(|post| view! {
-                                    <li class="border p-2 rounded">
-                                        <h3 class="font-semibold">{post.title}</h3>
-                                        <p class="text-sm text-gray-600">{post.date}</p>
-                                        <p class="mt-1">{post.summary}</p>
-                                    </li>
-                                }).collect::<Vec<_>>()}
-                            </ul>
-                        </div>
+                        <ul class="blog-list_items">
+                            {posts.into_iter().map(|post| view! {
+                                <li class="blog-card">
+                                    <h3 class="blog-card_title">{post.title}</h3>
+                                    <p class="blog-card_meta">{post.date}</p>
+                                    <p class="blog-card_summary">{post.summary}</p>
+                                </li>
+                            }).collect::<Vec<_>>()}
+                        </ul>
                     }.into_any(),
+
                     Some(Err(e)) => view! {
-                        <div>
-                            <p class="text-red-600">{format!("Failed to fetch posts: {}", e)}</p>
+                        <div class="error-message">
+                            <p>{format!("Failed to fetch posts: {}", e)}</p>
                         </div>
                     }.into_any(),
+
                     None => view! {
-                        <div>
+                        <div class="loading-message">
                             <p>"Loading posts..."</p>
                         </div>
                     }.into_any(),
                 }}
-            </div>
         </div>
     }
 }
