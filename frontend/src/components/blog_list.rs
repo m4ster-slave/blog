@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_router::components::A;
 use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
 
@@ -21,16 +22,6 @@ async fn fetch_posts() -> Result<Vec<Post>, String> {
     Ok(posts)
 }
 
-async fn fetch_single_posts(slug: &str) -> Result<Vec<Post>, String> {
-    let resp = Request::get(&format!("http://127.0.0.1:3000/posts?p={}", slug))
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    let json = resp.text().await.map_err(|e| e.to_string())?;
-    let posts: Vec<Post> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
-    Ok(posts)
-}
-
 #[component]
 pub fn BlogList() -> impl IntoView {
     let posts = LocalResource::new(fetch_posts);
@@ -40,12 +31,17 @@ pub fn BlogList() -> impl IntoView {
                 {move || match posts.get() {
                     Some(Ok(posts)) => view! {
                         <ul class="blog-list_items">
-                            {posts.into_iter().map(|post| view! {
-                                <li class="blog-card">
-                                    <h3 class="blog-card_title">{post.title}</h3>
-                                    <p class="blog-card_meta">{post.date}</p>
-                                    <p class="blog-card_summary">{post.summary}</p>
-                                </li>
+                            {posts.into_iter().map(|post| {
+                                let slug = post.slug.clone();
+                                view! {
+                                    <A href={format!("/blog/{}", slug)} attr:class="blog-card-link">
+                                        <li class="blog-card">
+                                            <h3 class="blog-card_title">{post.title}</h3>
+                                            <p class="blog-card_meta">{post.date}</p>
+                                            <p class="blog-card_summary">{post.summary}</p>
+                                        </li>
+                                    </A>
+                                }
                             }).collect::<Vec<_>>()}
                         </ul>
                     }.into_any(),

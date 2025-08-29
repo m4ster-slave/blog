@@ -59,6 +59,11 @@
   border-radius: 1rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
+  min-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 
   &:hover {
     transform: translateY(-2px);
@@ -100,4 +105,30 @@
   color: #94a3b8;
   text-align: center;
   font-style: italic;
+}
+
+.blog-post-content {
+  padding: 2rem 0;
+
+  &_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h1 {
+      color: f1f5f9;
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin: 0;
+    }
+  }
+
+  &_body {
+    color: #cbd5e1;
+    margin-top: 1rem;
+  }
 }

@@ -5,6 +5,7 @@ use leptos_router::{components::*, path};
 mod components;
 mod pages;
 
+use crate::components::blog_post::BlogPost;
 use crate::components::navbar::Navbar;
 use crate::pages::about::About;
 use crate::pages::blog::Blog;
@@ -29,6 +30,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/") view=Home />
                     <Route path=path!("/about") view=About/>
                     <Route path=path!("/blog") view=Blog />
+                    <Route path=path!("/blog/:slug") view=BlogPost />
                 </Routes>
             </Router>
         </main>
