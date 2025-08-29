@@ -2,6 +2,17 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
+
+fn format_date(date_str: &str) -> String {
+    match DateTime::parse_from_rfc3339(date_str) {
+        Ok(datetime) => {
+            let utc_datetime: DateTime<Utc> = datetime.with_timezone(&Utc);
+            utc_datetime.format("%B %d, %Y").to_string()
+        }
+        Err(_) => date_str.to_string(), // Fallback to original string if parsing fails
+    }
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct Post {
@@ -46,7 +57,7 @@ pub fn BlogPost() -> impl IntoView {
                     <article class="blog-post-content">
                         <header class="blog-post-content_header">
                             <h1 class="blog-post_title">{post.title}</h1>
-                            <p class="blog-post-content_meta">{post.date}</p>
+                            <p class="blog-post-content_meta">{format_date(&post.date)}</p>
                         </header>
                         <div class="blog-post-content_body">
                             {post.content.unwrap_or_else(|| "Content not available".to_string())}
