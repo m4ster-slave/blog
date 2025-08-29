@@ -1,8 +1,9 @@
+use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
+use pulldown_cmark::{html, Options, Parser};
 use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
 fn format_date(date_str: &str) -> String {
     match DateTime::parse_from_rfc3339(date_str) {
@@ -12,6 +13,20 @@ fn format_date(date_str: &str) -> String {
         }
         Err(_) => date_str.to_string(), // Fallback to original string if parsing fails
     }
+}
+
+fn markdown_to_html(markdown: &str) -> String {
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TABLES);
+    options.insert(Options::ENABLE_FOOTNOTES);
+    options.insert(Options::ENABLE_TASKLISTS);
+    options.insert(Options::ENABLE_HEADING_ATTRIBUTES);
+
+    let parser = Parser::new_ext(markdown, options);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+    html_output
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -59,8 +74,7 @@ pub fn BlogPost() -> impl IntoView {
                             <h1 class="blog-post_title">{post.title}</h1>
                             <p class="blog-post-content_meta">{format_date(&post.date)}</p>
                         </header>
-                        <div class="blog-post-content_body">
-                            {post.content.unwrap_or_else(|| "Content not available".to_string())}
+                        <div class="blog-post-content_body" inner_html={markdown_to_html(&post.content.unwrap_or_else(|| "Content not available".to_string()))}>
                         </div>
                     </article>
                 }.into_any(),
