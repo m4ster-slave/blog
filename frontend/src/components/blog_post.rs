@@ -39,7 +39,7 @@ struct Post {
 }
 
 async fn fetch_post_by_slug(slug: String) -> Result<Post, String> {
-    let resp = Request::get(&format!("http://127.0.0.1:3000/posts?slug={}", slug))
+    let resp = Request::get(&format!("/api/posts?slug={}", slug))
         .send()
         .await
         .map_err(|e| e.to_string())?;

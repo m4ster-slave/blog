@@ -1,0 +1,15 @@
+.git
+.gitignore
+.gitattributes
+README.md
+target/
+dist/
+*.log
+.env
+.env.local
+.env.production
+tmp/
+temp/
+Dockerfile*
+docker-compose*.yml
+.dockerignore

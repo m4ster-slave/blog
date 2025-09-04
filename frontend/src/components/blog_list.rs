@@ -24,7 +24,7 @@ struct Post {
 }
 
 async fn fetch_posts() -> Result<Vec<Post>, String> {
-    let resp = Request::get("http://127.0.0.1:3000/posts")
+    let resp = Request::get("/api/posts")
         .send()
         .await
         .map_err(|e| e.to_string())?;

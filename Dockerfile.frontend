@@ -1,0 +1,46 @@
+# Build stage
+FROM rust:alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache musl-dev nodejs npm
+
+# Install trunk
+RUN cargo install --locked trunk
+
+# Install wasm target
+RUN rustup target add wasm32-unknown-unknown
+
+# Install Sass via npm (works better on Alpine)
+RUN npm install -g sass
+
+WORKDIR /app
+
+# Copy frontend files
+COPY frontend/Cargo.toml frontend/Cargo.lock ./
+COPY frontend/index.html ./
+COPY frontend/Trunk.toml ./
+
+# Copy public directory first (needed for trunk build)
+COPY frontend/public ./public
+
+# Create src directory with dummy lib to cache dependencies  
+RUN mkdir src && echo "pub fn main() {}" > src/lib.rs
+
+# Copy actual source code
+COPY frontend/src ./src
+
+# Build the frontend
+RUN trunk build --release
+
+# Runtime stage - nginx alpine
+FROM nginx:alpine
+
+# Copy built frontend
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx config (we'll create this)
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
