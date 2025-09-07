@@ -1,3 +1,4 @@
+use crate::components::blog_list::BlogList;
 use leptos::prelude::*;
 
 #[component]
@@ -20,7 +21,20 @@ pub fn Home() -> impl IntoView {
         }>
 
             <section class="page-section">
-                <h1>"Welcome to Home"</h1>
+                <div class="home-container">
+                    <div class="hero-section">
+                        <h1 class="terminal-title">"Lukiana's and Leonor's blog"</h1>
+                        <p class="hero-subtitle">"Welcome to our corner of the web"</p>
+                    </div>
+
+                    <div class="intro-section">
+                        <p>"Hey there! We're Lukiana and Leonor, and this is our shared digital space where we write about tech, art, music, and whatever else captures our interest."</p>
+                    </div>
+
+                    <div class="featured-content">
+                        <BlogList />
+                    </div>
+                </div>
             </section>
         </ErrorBoundary>
     }
