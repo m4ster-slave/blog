@@ -23,9 +23,7 @@ pub fn Navbar() -> impl IntoView {
             </div>
 
             <div class="navbar_back">
-                <a href="../" class="link-reset">
-                    cd ..
-                </a>
+                <img src="/assets/logo.svg" alt="TRANS" />
             </div>
         </nav>
     }

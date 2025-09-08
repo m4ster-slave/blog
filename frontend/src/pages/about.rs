@@ -42,7 +42,7 @@ pub fn About() -> impl IntoView {
                                 <img src="/assets/lukiana/gifs/acab.gif" alt="acab" />
                                 <img src="/assets/lukiana/gifs/antifa.gif" alt="antifa" />
                                 <img src="/assets/lukiana/gifs/archlinux.gif" alt="archlinux" />
-                                <img src="/assets/lukiana/gifs/ffmpeg.gif" alt="ffmpeg" />
+                                <img src="/assets/lukiana/gifs/transbian.svg" alt="transbian" />
                                 <img src="/assets/lukiana/gifs/neovim.gif" alt="neovim" />
                             </div>
                             <div class="gif-row">

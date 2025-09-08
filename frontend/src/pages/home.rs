@@ -28,7 +28,7 @@ pub fn Home() -> impl IntoView {
                     </div>
 
                     <div class="intro-section">
-                        <p>"Hey there! We're Lukiana and Leonor, and this is our shared digital space where we write about tech, art, music, and whatever else captures our interest."</p>
+                        <p>"Hey there! We're Lukiana and Leonor, and this is our shared digital space where we write about art, tech, music, and whatever else captures our interest."</p>
                     </div>
 
                     <div class="featured-content">

@@ -21,24 +21,44 @@ async fn main() {
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let addr = format!("0.0.0.0:{}", port);
     println!("Starting server on {}", addr);
-    
+
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
 #[derive(Debug, Deserialize)]
-struct SlugQuery {
+struct SlugPageQuery {
     slug: Option<String>,
+    page: Option<usize>,
 }
 
-async fn get_posts(Query(query): Query<SlugQuery>) -> (StatusCode, Json<Vec<Post>>) {
+async fn get_posts(Query(query): Query<SlugPageQuery>) -> (StatusCode, Json<Vec<Post>>) {
     match query.slug {
         None => {
-            let posts = read_markdown_files("../posts");
+            let posts = match read_markdown_files("../posts") {
+                Ok(p) => p,
+                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])),
+            };
 
-            match posts {
-                Ok(p) => (StatusCode::OK, Json(p)),
-                Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])),
+            // TODO sort posts by date
+
+            match query.page {
+                None => (
+                    StatusCode::OK,
+                    Json(posts.iter().take(5).cloned().collect()),
+                ),
+
+                Some(page) => {
+                    let start = page * 5;
+                    let end = (start + 5).min(posts.len());
+                    let page_posts = if start >= posts.len() {
+                        vec![]
+                    } else {
+                        posts[start..end].to_vec()
+                    };
+
+                    (StatusCode::OK, Json(page_posts))
+                }
             }
         }
         Some(p) => {
@@ -52,7 +72,7 @@ async fn get_posts(Query(query): Query<SlugQuery>) -> (StatusCode, Json<Vec<Post
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 struct Post {
     title: String,
     date: String,

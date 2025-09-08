@@ -1,8 +1,9 @@
+use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use leptos_router::components::A;
+use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
 fn format_date(date_str: &str) -> String {
     match DateTime::parse_from_rfc3339(date_str) {
@@ -23,11 +24,9 @@ struct Post {
     content: Option<String>,
 }
 
-async fn fetch_posts() -> Result<Vec<Post>, String> {
-    let resp = Request::get("/api/posts")
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
+async fn fetch_posts(page: i32) -> Result<Vec<Post>, String> {
+    let url = format!("/api/posts?page={}", page);
+    let resp = Request::get(&url).send().await.map_err(|e| e.to_string())?;
     let json = resp.text().await.map_err(|e| e.to_string())?;
     let posts: Vec<Post> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
     Ok(posts)
@@ -35,7 +34,11 @@ async fn fetch_posts() -> Result<Vec<Post>, String> {
 
 #[component]
 pub fn BlogList() -> impl IntoView {
-    let posts = LocalResource::new(fetch_posts);
+    let (page, _set_page) = query_signal::<i32>("page");
+    let posts = LocalResource::new(move || {
+        let current_page = page.get().unwrap_or(0);
+        fetch_posts(current_page)
+    });
 
     view! {
         <div class="blog-list">
@@ -70,5 +73,6 @@ pub fn BlogList() -> impl IntoView {
                     }.into_any(),
                 }}
         </div>
+
     }
 }
