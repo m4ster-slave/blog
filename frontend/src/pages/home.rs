@@ -1,4 +1,3 @@
-use crate::components::blog_list::BlogList;
 use leptos::prelude::*;
 
 #[component]
@@ -29,10 +28,6 @@ pub fn Home() -> impl IntoView {
 
                     <div class="intro-section">
                         <p>"Hey there! We're Lukiana and Leonor, and this is our shared digital space where we write about art, tech, music, and whatever else captures our interest."</p>
-                    </div>
-
-                    <div class="featured-content">
-                        <BlogList />
                     </div>
                 </div>
             </section>
