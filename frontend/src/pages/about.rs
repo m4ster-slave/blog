@@ -65,26 +65,26 @@ pub fn About() -> impl IntoView {
 
                         <div class="person-info">
                             <h2>whomi</h2>
-                            <p>"I'm deeply into visual arts, illustration, and graphic design. I spend my days creating digital artwork, sketching in my notebooks, and exploring different art mediums. I also love watching indie films, collecting vintage books, and practicing yoga. Gardening and cooking are my zen activities."</p>
+                            <p>"Hi im leonor :3 Im 18 and right now go to school for technical theatre. My goal one day is to work board for different venues or things that need a sound tech to be there, and also get married. I play magic the gathering and  trumpet and have ever since i was small. I love my gf sm and she is the one who made this website bc shes super cool and knows how to do that somehow. I like to smoke weed and watch tv, and i rlly love my gf."</p>
 
                             <h2>Favorite Artists</h2>
-                            <p>underscores, grimes, arca, alice longyu gao, femtanyl</p>
+                            <p>underscores, grimes, arca, alice longyu gao, femtanyl, shygirl, azealia banks</p>
                         </div>
 
                         <div class="gif-buttons">
                             <div class="gif-row">
-                                <img src="https://cyber.dabamos.de/88x31/misc/piracy_now.gif" alt="Piracy Now" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/fuck_nfts.gif" alt="Fuck NFTs" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/made_with_notepad.gif" alt="Made with Notepad" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/hand_coded.gif" alt="Hand Coded" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/best_viewed_on_crt.gif" alt="Best viewed on CRT" />
+                                <img src="/assets/leonor/gifs/4ever.gif" alt="4ever" />
+                                <img src="/assets/leonor/gifs/12men.gif" alt="12men" />
+                                <img src="/assets/leonor/gifs/boc.gif" alt="boc" />
+                                <img src="/assets/leonor/gifs/eat.gif" alt="eat" />
+                                <img src="/assets/leonor/gifs/forever_online.gif" alt="forever online" />
                             </div>
                             <div class="gif-row">
-                                <img src="https://cyber.dabamos.de/88x31/misc/html5_powered.gif" alt="HTML5 Powered" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/css3_powered.gif" alt="CSS3 Powered" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/javascript_free.gif" alt="JavaScript Free" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/geocities.gif" alt="Geocities" />
-                                <img src="https://cyber.dabamos.de/88x31/misc/queer_pride.gif" alt="Queer Pride" />
+                                <img src="/assets/leonor/gifs/happy-mix_button.gif" alt="happy mix" />
+                                <img src="/assets/leonor/gifs/hartscorned.gif" alt="hartscorned" />
+                                <img src="/assets/leonor/gifs/notperfect.gif" alt="notperfect" />
+                                <img src="/assets/leonor/gifs/onionlink1098.gif" alt="onionlink1098" />
+                                <img src="/assets/leonor/gifs/transnow2.gif" alt="transnow" />
                             </div>
                         </div>
                     </div>
