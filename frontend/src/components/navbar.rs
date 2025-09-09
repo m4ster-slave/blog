@@ -20,6 +20,9 @@ pub fn Navbar() -> impl IntoView {
                 <a href="/blog" class="link-reset">
                     blog
                 </a>
+                <a href="/album" class="link-reset">
+                    album
+                </a>
             </div>
 
             <div class="navbar_back">

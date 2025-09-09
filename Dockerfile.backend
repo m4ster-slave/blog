@@ -33,6 +33,7 @@ WORKDIR /
 
 # Copy static files to root level (so ../assets and ../posts work from /app)
 COPY posts ./posts
+COPY album ./album
 COPY assets ./assets
 
 WORKDIR /app

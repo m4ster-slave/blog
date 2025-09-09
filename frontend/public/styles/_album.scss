@@ -1,0 +1,26 @@
+.photo-grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 1200px; // optional, keeps them from stretching edge-to-edge
+
+  li {
+    flex: 1 1 250px; // grow, shrink, min width
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      min-width: 200px;
+      min-height: 150px;
+    }
+  }
+}

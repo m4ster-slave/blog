@@ -59,7 +59,7 @@ pub fn About() -> impl IntoView {
                         <div class="person-header">
                             <h1>Leonor</h1>
                             <div class="person-image">
-                                <img src="/assets/leonor-photo.png" alt="Leonor" />
+                                <img src="/assets/leonor-photo.jpeg" alt="Leonor" />
                             </div>
                         </div>
 
