@@ -1,4 +1,5 @@
 use axum::{Json, Router, extract::Query, http::StatusCode, routing::get};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
@@ -39,8 +40,6 @@ async fn get_posts(Query(query): Query<SlugPageQuery>) -> (StatusCode, Json<Vec<
                 Ok(p) => p,
                 Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])),
             };
-
-            // TODO sort posts by date
 
             match query.page {
                 None => (
@@ -106,6 +105,12 @@ fn read_markdown_files<P: AsRef<Path>>(
             posts.push(post);
         }
     }
+
+    posts.sort_by(|a, b| {
+        let da: DateTime<Utc> = a.date.parse().unwrap();
+        let db: DateTime<Utc> = b.date.parse().unwrap();
+        db.cmp(&da) // reverse order: newest first
+    });
 
     Ok(posts)
 }
