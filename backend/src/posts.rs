@@ -1,8 +1,12 @@
+use axum::extract::State;
 use axum::{Json, extract::Query, http::StatusCode};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
+
+use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct SlugPageQuery {
@@ -10,39 +14,36 @@ pub struct SlugPageQuery {
     page: Option<usize>,
 }
 
-pub async fn get_posts(Query(query): Query<SlugPageQuery>) -> (StatusCode, Json<Vec<Post>>) {
+pub async fn get_posts(
+    Query(query): Query<SlugPageQuery>,
+    State(state): State<Arc<AppState>>,
+) -> (StatusCode, Json<Vec<Post>>) {
+    let posts = &state.posts;
+
     match query.slug {
-        None => {
-            let posts = match read_markdown_files("../posts") {
-                Ok(p) => p,
-                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])),
-            };
+        None => match query.page {
+            None => (
+                StatusCode::OK,
+                Json(posts.iter().take(5).cloned().collect()),
+            ),
 
-            match query.page {
-                None => (
-                    StatusCode::OK,
-                    Json(posts.iter().take(5).cloned().collect()),
-                ),
+            Some(page) => {
+                let start = page * 5;
+                let end = (start + 5).min(posts.len());
+                let page_posts = if start >= posts.len() {
+                    vec![]
+                } else {
+                    posts[start..end].to_vec()
+                };
 
-                Some(page) => {
-                    let start = page * 5;
-                    let end = (start + 5).min(posts.len());
-                    let page_posts = if start >= posts.len() {
-                        vec![]
-                    } else {
-                        posts[start..end].to_vec()
-                    };
-
-                    (StatusCode::OK, Json(page_posts))
-                }
+                (StatusCode::OK, Json(page_posts))
             }
-        }
-        Some(p) => {
-            let post = read_post_by_slug("../posts", &p);
-
-            match post {
-                Ok(p) => (StatusCode::OK, Json(vec![p])),
-                Err(_) => (StatusCode::NOT_FOUND, Json(vec![])),
+        },
+        Some(slug) => {
+            if let Some(found) = posts.iter().find(|&p| p.slug == slug) {
+                (StatusCode::OK, Json(vec![found.clone()]))
+            } else {
+                (StatusCode::NOT_FOUND, Json(vec![]))
             }
         }
     }
@@ -57,7 +58,7 @@ pub struct Post {
     content: Option<String>,
 }
 
-fn read_markdown_files<P: AsRef<Path>>(
+pub fn read_markdown_files<P: AsRef<Path>>(
     dir_path: P,
 ) -> Result<Vec<Post>, Box<dyn std::error::Error>> {
     let mut posts = Vec::new();
@@ -76,8 +77,7 @@ fn read_markdown_files<P: AsRef<Path>>(
                 .data
                 .expect("Should have been able to parse metadata");
 
-            // post.content = Some(parsed.content);
-            post.content = None;
+            post.content = Some(parsed.content);
 
             posts.push(post);
         }
@@ -90,29 +90,4 @@ fn read_markdown_files<P: AsRef<Path>>(
     });
 
     Ok(posts)
-}
-
-fn read_post_by_slug<P: AsRef<Path>>(
-    dir_path: P,
-    slug: &str,
-) -> Result<Post, Box<dyn std::error::Error>> {
-    for entry in fs::read_dir(dir_path)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.extension().and_then(|s| s.to_str()) == Some("md") {
-            let content = fs::read_to_string(&path)?;
-            let parsed =
-                gray_matter::Matter::<gray_matter::engine::YAML>::new().parse::<Post>(&content)?;
-            let mut post = parsed
-                .data
-                .expect("Should have been able to parse metadata");
-
-            if post.slug == slug {
-                post.content = Some(parsed.content);
-                return Ok(post);
-            }
-        }
-    }
-
-    Err(format!("Post with slug '{}' not found", slug).into())
 }

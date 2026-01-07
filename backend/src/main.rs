@@ -5,6 +5,7 @@ use tower_http::services::ServeDir;
 
 use crate::{
     photos::{Photo, read_photo_files},
+    posts::{Post, read_markdown_files},
     util::migrate_to_webp,
 };
 
@@ -14,6 +15,7 @@ mod util;
 
 struct AppState {
     photos: Vec<Photo>,
+    posts: Vec<Post>,
 }
 
 #[tokio::main]
@@ -23,7 +25,12 @@ async fn main() {
     }
 
     let photo_list = read_photo_files("../album").expect("Error reading album directory");
-    let app_state = Arc::new(AppState { photos: photo_list });
+    let post_list = read_markdown_files("../posts").expect("Error loading posts");
+
+    let app_state = Arc::new(AppState {
+        photos: photo_list,
+        posts: post_list,
+    });
 
     let app = Router::new()
         // serve assets for the blog posts in the /assets folder
