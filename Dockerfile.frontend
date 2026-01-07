@@ -17,6 +17,7 @@ WORKDIR /app
 
 # Copy frontend files
 COPY frontend/Cargo.toml frontend/Cargo.lock ./
+COPY frontend/.cargo/config.toml ./.cargo/
 COPY frontend/index.html ./
 COPY frontend/Trunk.toml ./
 
