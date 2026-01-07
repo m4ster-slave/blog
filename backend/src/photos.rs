@@ -1,15 +1,16 @@
+use axum::extract::State;
 use axum::{Json, http::StatusCode};
 use rand::rng;
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
-pub async fn get_photos() -> (StatusCode, Json<Vec<Photo>>) {
-    match read_photo_files("../album") {
-        Ok(p) => (StatusCode::OK, Json(p)),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])),
-    }
+use crate::AppState;
+
+pub async fn get_photos(State(state): State<Arc<AppState>>) -> (StatusCode, Json<Vec<Photo>>) {
+    (StatusCode::OK, Json(state.photos.clone()))
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -17,7 +18,9 @@ pub struct Photo {
     path: String,
 }
 
-fn read_photo_files<P: AsRef<Path>>(dir_path: P) -> Result<Vec<Photo>, Box<dyn std::error::Error>> {
+pub fn read_photo_files<P: AsRef<Path>>(
+    dir_path: P,
+) -> Result<Vec<Photo>, Box<dyn std::error::Error>> {
     let dir_path = dir_path.as_ref();
 
     let mut entries: Vec<PathBuf> = fs::read_dir(dir_path)?
