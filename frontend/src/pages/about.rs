@@ -25,12 +25,12 @@ pub fn About() -> impl IntoView {
                         <div class="person-header">
                             <h1>Lukiana</h1>
                             <div class="person-image">
-                                <img src="/assets/lukiana-photo.jpg" alt="Lukiana" />
+                                <img src="/assets/lukiana-photo.webp" alt="Lukiana" />
                             </div>
                         </div>
 
                         <div class="person-info">
-                            <h2>whomi</h2>
+                            <h2>whoami</h2>
                             <p>"I'm passionate about the computer, cyber security and OSS~ In my free time i ocassionaly dabble in hobby politics. Im a part time misanthropic drunken looser and a full time wife lover (Seriously she is the love of my life and i love her soo much). An interesting funfact about me is that i wear the same patched up pants everyday (one might call them patchpants but im not ready to commit to being a punk like that) and i dont do it because im poor but because im autistic and like wearing the same pants everyday"</p>
 
                             <h2>Favorite Artists</h2>
@@ -59,12 +59,12 @@ pub fn About() -> impl IntoView {
                         <div class="person-header">
                             <h1>Leonor</h1>
                             <div class="person-image">
-                                <img src="/assets/leonor-photo.jpeg" alt="Leonor" />
+                                <img src="/assets/leonor-photo.webp" alt="Leonor" />
                             </div>
                         </div>
 
                         <div class="person-info">
-                            <h2>whomi</h2>
+                            <h2>whoami</h2>
                             <p>"Hi im leonor :3 Im 18 and right now go to school for technical theatre. My goal one day is to work board for different venues or things that need a sound tech to be there, and also get married. I play magic the gathering and  trumpet and have ever since i was small. I love my gf sm and she is the one who made this website bc shes super cool and knows how to do that somehow. I like to smoke weed and watch tv, and i rlly love my gf."</p>
 
                             <h2>Favorite Artists</h2>

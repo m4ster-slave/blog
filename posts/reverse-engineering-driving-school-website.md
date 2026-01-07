@@ -1,6 +1,6 @@
 ---
 title: "Reverse engineering driving school website"
-date: "2026-01-7T10:00:00Z"
+date: "2026-01-07T01:00:00Z"
 summary: "Quick writeup on how i reverse engineered my dirving school quiz website :P"
 slug: "reverse-engineering-driving-school-website"
 ---
@@ -11,7 +11,7 @@ Let me clarify first that I don’t consider this skilled hacking or even someth
 
 This little project started out how any web exploitation task does: in the Developer Tools of my browser. It was pretty obvious that the site fetches the questions from some kind of endpoint, but what I didn’t expect was that not only the questions but also the answers are preloaded.
 
-![scheda endpoint](/assets/reverse-engineering-driving-school-website/scheda_endpoint.png)
+![scheda endpoint](/assets/reverse-engineering-driving-school-website/scheda_endpoint.webp)
 
 After completing a quiz, a second endpoint gets called with an array of the answers.
 
@@ -19,7 +19,7 @@ After completing a quiz, a second endpoint gets called with an array of the answ
 
 First, I wrote a small website that takes the JSON from the endpoint and displays the list of questions with their answers. But I wanted to go further. So I wrote a small browser extension that intercepts the traffic and displays the correct answer along with the explanation of why that answer is right (this is also included with the questions).
 
-![extension](/assets/reverse-engineering-driving-school-website/extension.png)
+![extension](/assets/reverse-engineering-driving-school-website/extension.webp)
 
 After that, I looked at the endpoint that corrects and confirms the quiz. It looked really easy to create a “SOLVE ALL” button, so I did :).
 
