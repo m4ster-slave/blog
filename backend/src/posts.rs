@@ -1,6 +1,6 @@
 use axum::extract::State;
 use axum::{Json, extract::Query, http::StatusCode};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc}; // Ensure Utc is imported
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
@@ -21,24 +21,37 @@ pub async fn get_posts(
     let posts = &state.posts;
 
     match query.slug {
-        None => match query.page {
-            None => (
-                StatusCode::OK,
-                Json(posts.iter().take(5).cloned().collect()),
-            ),
+        None => {
+            let to_summary = |p: &Post| Post {
+                title: p.title.clone(),
+                date: p.date.clone(),
+                summary: p.summary.clone(),
+                slug: p.slug.clone(),
+                content: None,
+            };
 
-            Some(page) => {
-                let start = page * 5;
-                let end = (start + 5).min(posts.len());
-                let page_posts = if start >= posts.len() {
-                    vec![]
-                } else {
-                    posts[start..end].to_vec()
-                };
+            match query.page {
+                None => {
+                    let start = 0;
+                    let end = 5.min(posts.len());
+                    let summary_list = posts[start..end].iter().map(to_summary).collect();
+                    (StatusCode::OK, Json(summary_list))
+                }
 
-                (StatusCode::OK, Json(page_posts))
+                Some(page) => {
+                    let start = page * 5;
+                    let end = (start + 5).min(posts.len());
+
+                    let page_posts = if start >= posts.len() {
+                        vec![]
+                    } else {
+                        posts[start..end].iter().map(to_summary).collect()
+                    };
+
+                    (StatusCode::OK, Json(page_posts))
+                }
             }
-        },
+        }
         Some(slug) => {
             if let Some(found) = posts.iter().find(|&p| p.slug == slug) {
                 (StatusCode::OK, Json(vec![found.clone()]))
@@ -61,7 +74,7 @@ pub struct Post {
 pub fn read_markdown_files<P: AsRef<Path>>(
     dir_path: P,
 ) -> Result<Vec<Post>, Box<dyn std::error::Error>> {
-    let mut posts = Vec::new();
+    let mut posts_with_date = Vec::new();
 
     for entry in fs::read_dir(dir_path)? {
         let entry = entry?;
@@ -79,15 +92,15 @@ pub fn read_markdown_files<P: AsRef<Path>>(
 
             post.content = Some(parsed.content);
 
-            posts.push(post);
+            // Parse date ONCE here - Schwartzian transform
+            let date_parsed = post
+                .date
+                .parse::<DateTime<Utc>>()
+                .unwrap_or_else(|_| Utc::now());
+            posts_with_date.push((post, date_parsed));
         }
     }
 
-    posts.sort_by(|a, b| {
-        let da: DateTime<Utc> = a.date.parse().unwrap();
-        let db: DateTime<Utc> = b.date.parse().unwrap();
-        db.cmp(&da) // reverse order: newest first
-    });
-
-    Ok(posts)
+    posts_with_date.sort_by(|a, b| b.1.cmp(&a.1));
+    Ok(posts_with_date.into_iter().map(|(p, _)| p).collect())
 }

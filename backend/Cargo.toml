@@ -14,3 +14,9 @@ serde_yaml = "0.9.34"
 tokio = {version = "1.47.1", features = ["full"]}
 tower-http = {version = "0.6.6", features = ["full"]}
 webp = "0.3.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
