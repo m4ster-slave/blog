@@ -58,3 +58,12 @@ open = true
 # tls_cert_path = "self_signed_certs/cert.pem"
 # Additional headers to send. NOTE: header names must be valid HTTP headers.
 # headers = { "X-Foo" = "bar" }
+[[proxy]]
+backend = "http://127.0.0.1:3001"
+rewrite = "/api/"
+[[proxy]]
+backend = "http://127.0.0.1:3001/assets/"
+rewrite = "/assets/"
+[[proxy]]
+backend = "http://127.0.0.1:3001/album/"
+rewrite = "/album/"
