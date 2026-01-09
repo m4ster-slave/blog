@@ -7,9 +7,21 @@
   backdrop-filter: blur(10px);
   border-bottom: 3px solid #57329F;
 
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
   &_nav {
     display: flex;
     gap: 2rem;
+
+    @media (max-width: 768px) {
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
     a {
       color: #cbd5e1;
@@ -59,7 +71,8 @@
   border-radius: 1rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
-  min-width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -148,9 +161,19 @@
     align-items: center;
     width: 100%;
 
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
     h1 {
       color: f1f5f9;
       margin: 0;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
     }
 
     p {
