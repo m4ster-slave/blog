@@ -12,6 +12,7 @@ pub async fn get_photos(State(state): State<Arc<AppState>>) -> (StatusCode, Json
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(transparent)]
 pub struct Photo {
     path: String,
 }

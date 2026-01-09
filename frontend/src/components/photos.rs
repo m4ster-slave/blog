@@ -1,21 +1,15 @@
 use leptos::prelude::*;
 use rand::seq::SliceRandom;
 use reqwasm::http::Request;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Photo {
-    path: String,
-}
-
-async fn fetch_photos() -> Result<Vec<Photo>, String> {
+async fn fetch_photos() -> Result<Vec<String>, String> {
     let mut rng = rand::rng();
     let resp = Request::get("/api/photos")
         .send()
         .await
         .map_err(|e| e.to_string())?;
     let json = resp.text().await.map_err(|e| e.to_string())?;
-    let mut posts: Vec<Photo> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
+    let mut posts: Vec<String> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
 
     posts.shuffle(&mut rng);
 
@@ -35,7 +29,7 @@ pub fn Photos() -> impl IntoView {
                                     view! {
                                             <li >
 
-    <img src={photo.path} alt="photo" />
+    <img src={photo} alt="photo" />
                                             </li>
                                     }
                                 }).collect::<Vec<_>>()}
