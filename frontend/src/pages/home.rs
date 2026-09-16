@@ -22,12 +22,12 @@ pub fn Home() -> impl IntoView {
             <section class="page-section">
                 <div class="home-container">
                     <div class="hero-section">
-                        <h1 class="terminal-title">"Lukiana's and Leonor's blog"</h1>
-                        <p class="hero-subtitle">"Welcome to our corner of the web"</p>
+                        <h1 class="terminal-title">"Lukiana's blog"</h1>
+                        <p class="hero-subtitle">"Welcome to my corner of the web"</p>
                     </div>
 
                     <div class="intro-section">
-                        <p>"Hey there! We're Lukiana and Leonor, and this is our shared digital space where we write about art, tech, music, and whatever else captures our interest."</p>
+                        <p>"Hey there! I'm Lukiana this, is my digital space where I write about art, tech, music, and whatever else captures my interest."</p>
                     </div>
                 </div>
             </section>

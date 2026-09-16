@@ -6,14 +6,11 @@ pub fn Navbar() -> impl IntoView {
         <nav class="navbar">
             <div class="navbar_back">
                 <a href="/" class="link-reset">
-                    cd ~/
+                    cd ~
                 </a>
             </div>
 
             <div class="navbar_nav">
-                <a href="/" class="link-reset">
-                   home
-                </a>
                 <a href="/about" class="link-reset">
                     about
                 </a>
