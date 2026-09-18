@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::components::photos::Photos;
 
 #[component]
-pub fn Album() -> impl IntoView {
+pub fn Devlog() -> impl IntoView {
     view! {
         <ErrorBoundary fallback=|errors| {
             view! {

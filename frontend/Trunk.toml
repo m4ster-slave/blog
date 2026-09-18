@@ -59,11 +59,11 @@ open = true
 # Additional headers to send. NOTE: header names must be valid HTTP headers.
 # headers = { "X-Foo" = "bar" }
 [[proxy]]
-backend = "http://127.0.0.1:3001"
+backend = "http://127.0.0.1:3000"
 rewrite = "/api/"
 [[proxy]]
-backend = "http://127.0.0.1:3001/assets/"
+backend = "http://127.0.0.1:3000/assets/"
 rewrite = "/assets/"
 [[proxy]]
-backend = "http://127.0.0.1:3001/album/"
+backend = "http://127.0.0.1:3000/album/"
 rewrite = "/album/"

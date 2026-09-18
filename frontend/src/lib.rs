@@ -8,8 +8,8 @@ mod pages;
 use crate::components::blog_post::BlogPost;
 use crate::components::navbar::Navbar;
 use crate::pages::about::About;
-use crate::pages::album::Album;
 use crate::pages::blog::Blog;
+use crate::pages::devlog::Devlog;
 use crate::pages::home::Home;
 use crate::pages::not_found::NotFound;
 
@@ -32,7 +32,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/about") view=About/>
                     <Route path=path!("/blog") view=Blog />
                     <Route path=path!("/blog/:slug") view=BlogPost />
-                    <Route path=path!("/album") view=Album/>
+                    <Route path=path!("/devlog") view=Devlog/>
                 </Routes>
             </Router>
         </main>

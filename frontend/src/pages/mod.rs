@@ -1,5 +1,5 @@
 pub mod about;
-pub mod album;
 pub mod blog;
+pub mod devlog;
 pub mod home;
 pub mod not_found;

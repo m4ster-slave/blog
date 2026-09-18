@@ -17,13 +17,13 @@ pub fn Navbar() -> impl IntoView {
                 <a href="/blog" class="link-reset">
                     blog
                 </a>
-                <a href="/album" class="link-reset">
-                    album
+                <a href="/devlog" class="link-reset">
+                    devlog
                 </a>
             </div>
 
             <div class="navbar_back">
-                <img src="/assets/logo.svg" alt="TRANS" />
+                <img src="./logo.svg" alt="TRANS" />
             </div>
         </nav>
     }
