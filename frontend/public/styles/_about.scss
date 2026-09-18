@@ -1,5 +1,9 @@
 .about-container {
+
   display: flex;
+  flex-direction: column;
+  align-items: center;
+
   gap: 3rem;
   max-width: 800px;
   margin: 0 auto;
@@ -10,12 +14,6 @@
     gap: 2rem;
     padding: 1rem;
   }
-}
-
-.person-column {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
 }
 
 .person-header {
@@ -45,10 +43,18 @@
 }
 
 .person-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+
+
   h2 {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
+    min-width: 40%;
     color: #f1f5f9;
     border-bottom: 2px solid var(--accent-color, #666);
     padding-bottom: 0.25rem;

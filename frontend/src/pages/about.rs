@@ -21,7 +21,6 @@ pub fn About() -> impl IntoView {
 
             <section class="page-section">
                 <div class="about-container">
-                    <div class="person-column">
                         <div class="person-header">
                             <h1>About me</h1>
                             <div class="person-image">
@@ -53,7 +52,6 @@ pub fn About() -> impl IntoView {
                                 <img src="./gifs/tyg.gif" alt="tyg" />
                             </div>
                         </div>
-                    </div>
 
                 </div>
             </section>
