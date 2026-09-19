@@ -1,43 +1,37 @@
+use anyhow::Ok;
+use axum::{
+    Router,
+    routing::{get, post},
+};
+use sqlx::PgPool;
 use std::sync::Arc;
 
-use axum::{Router, routing::get};
-use tower_http::services::ServeDir;
-
-use crate::{
-    photos::{Photo, read_photo_files},
-    posts::{Post, read_markdown_files},
-    util::migrate_to_webp,
-};
-
-mod photos;
+mod database;
+mod models;
 mod posts;
-mod util;
 
 struct AppState {
-    photos: Vec<Photo>,
-    posts: Vec<Post>,
+    pool: PgPool,
 }
 
 #[tokio::main]
-async fn main() {
-    if let Err(e) = migrate_to_webp("../album", 1000) {
-        eprintln!("Error converting images to thumbnails: {}", e);
-    }
+async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv().ok();
 
-    let photo_list = read_photo_files("../album").expect("Error reading album directory");
-    let post_list = read_markdown_files("../posts").expect("Error loading posts");
+    let db_url = std::env::var("DATABASE_URL")?;
+    let pool: PgPool = database::establish_connection(&db_url)
+        .await
+        .expect("Database connection failed");
 
-    let app_state = Arc::new(AppState {
-        photos: photo_list,
-        posts: post_list,
-    });
+    database::run_migrations(&pool)
+        .await
+        .expect("Some migrations failed");
+
+    let app_state = Arc::new(AppState { pool });
 
     let app = Router::new()
-        // serve assets for the blog posts in the /assets folder
-        .nest_service("/assets", ServeDir::new("../assets"))
-        .nest_service("/album", ServeDir::new("../album"))
         .route("/posts", get(posts::get_posts))
-        .route("/photos", get(photos::get_photos))
+        .route("/posts", post(posts::create_post))
         .with_state(app_state);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
@@ -46,4 +40,5 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
+    Ok(())
 }

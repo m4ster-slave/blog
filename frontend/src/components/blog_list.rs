@@ -15,13 +15,16 @@ fn format_date(date_str: &str) -> String {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct Post {
-    title: String,
-    date: String,
-    summary: String,
-    slug: String,
-    content: Option<String>,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Post {
+    pub id: String,
+    pub title: String,
+    pub slug: String,
+    pub summary: Option<String>,
+    pub content: String,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 async fn fetch_posts(page: i32) -> Result<Vec<Post>, String> {
@@ -51,7 +54,7 @@ pub fn BlogList() -> impl IntoView {
                                     <A href={format!("/blog/{}", slug)} attr:class="blog-card-link">
                                         <li class="blog-card">
                                             <h3 class="blog-card_title">{post.title}</h3>
-                                            <p class="blog-card_meta">{format_date(&post.date)}</p>
+                                            <p class="blog-card_meta">{format!("{}", post.created_at)}</p>
                                             <p class="blog-card_summary">{post.summary}</p>
                                         </li>
                                     </A>

@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8.4"
-chrono = "0.4.42"
 gray_matter = "0.3.2"
 image = "0.25.9"
 rand = "0.9.2"
@@ -14,6 +13,12 @@ serde_yaml = "0.9.34"
 tokio = {version = "1.47.1", features = ["full"]}
 tower-http = {version = "0.6.6", features = ["full"]}
 webp = "0.3.1"
+sqlx = { version = "0.9", features = ["postgres", "runtime-tokio", "macros", "time", "uuid", "chrono"] }
+anyhow = "1.0"   
+dotenvy = "0.15" 
+uuid = { version = "1", features = ["serde", "v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+
 
 [profile.release]
 lto = true

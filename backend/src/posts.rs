@@ -1,9 +1,7 @@
+use crate::models::post::Post;
 use axum::extract::State;
 use axum::{Json, extract::Query, http::StatusCode};
-use chrono::{DateTime, Utc}; // Ensure Utc is imported
-use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::Path;
+use serde::Deserialize;
 use std::sync::Arc;
 
 use crate::AppState;
@@ -14,93 +12,70 @@ pub struct SlugPageQuery {
     page: Option<usize>,
 }
 
-pub async fn get_posts(
-    Query(query): Query<SlugPageQuery>,
-    State(state): State<Arc<AppState>>,
-) -> (StatusCode, Json<Vec<Post>>) {
-    let posts = &state.posts;
-
-    match query.slug {
-        None => {
-            let to_summary = |p: &Post| Post {
-                title: p.title.clone(),
-                date: p.date.clone(),
-                summary: p.summary.clone(),
-                slug: p.slug.clone(),
-                content: None,
-            };
-
-            match query.page {
-                None => {
-                    let start = 0;
-                    let end = 5.min(posts.len());
-                    let summary_list = posts[start..end].iter().map(to_summary).collect();
-                    (StatusCode::OK, Json(summary_list))
-                }
-
-                Some(page) => {
-                    let start = page * 5;
-                    let end = (start + 5).min(posts.len());
-
-                    let page_posts = if start >= posts.len() {
-                        vec![]
-                    } else {
-                        posts[start..end].iter().map(to_summary).collect()
-                    };
-
-                    (StatusCode::OK, Json(page_posts))
-                }
-            }
-        }
-        Some(slug) => {
-            if let Some(found) = posts.iter().find(|&p| p.slug == slug) {
-                (StatusCode::OK, Json(vec![found.clone()]))
-            } else {
-                (StatusCode::NOT_FOUND, Json(vec![]))
-            }
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Post {
+#[derive(Debug, Deserialize)]
+pub struct CreatePostBody {
     title: String,
-    date: String,
-    summary: String,
     slug: String,
-    content: Option<String>,
+    summary: String,
+    content: String,
 }
 
-pub fn read_markdown_files<P: AsRef<Path>>(
-    dir_path: P,
-) -> Result<Vec<Post>, Box<dyn std::error::Error>> {
-    let mut posts_with_date = Vec::new();
+pub async fn get_posts(
+    Query(_query): Query<SlugPageQuery>,
+    State(state): State<Arc<AppState>>,
+) -> Result<(StatusCode, Json<Vec<Post>>), StatusCode> {
+    let posts = sqlx::query_as::<_, Post>(
+        r#"
+        SELECT
+            id,
+            title,
+            slug,
+            summary,
+            content,
+            published_at,
+            created_at,
+            updated_at
+        FROM posts
+        ORDER BY created_at DESC
+        "#,
+    )
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    for entry in fs::read_dir(dir_path)? {
-        let entry = entry?;
-        let path = entry.path();
+    Ok((StatusCode::OK, Json(posts)))
+}
 
-        if path.extension().and_then(|s| s.to_str()) == Some("md") {
-            let content = fs::read_to_string(&path)?;
+pub async fn create_post(
+    State(state): State<Arc<AppState>>,
+    Json(post_data): Json<CreatePostBody>,
+) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
+    let id = uuid::Uuid::new_v4();
+    sqlx::query(
+        r#"
+    INSERT INTO posts (
+        id,
+        archived,
+        title,
+        slug,
+        summary,
+        content
+    )
+    VALUES ($1, $2, $3, $4, $5, $6)
+    "#,
+    )
+    .bind(id)
+    .bind(true)
+    .bind(post_data.title)
+    .bind(post_data.slug)
+    .bind(post_data.summary)
+    .bind(post_data.content)
+    .execute(&state.pool)
+    .await
+    .map_err(|e| {
+        println!("Errror: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
-            let parsed =
-                gray_matter::Matter::<gray_matter::engine::YAML>::new().parse::<Post>(&content)?;
-
-            let mut post = parsed
-                .data
-                .expect("Should have been able to parse metadata");
-
-            post.content = Some(parsed.content);
-
-            // Parse date ONCE here - Schwartzian transform
-            let date_parsed = post
-                .date
-                .parse::<DateTime<Utc>>()
-                .unwrap_or_else(|_| Utc::now());
-            posts_with_date.push((post, date_parsed));
-        }
-    }
-
-    posts_with_date.sort_by(|a, b| b.1.cmp(&a.1));
-    Ok(posts_with_date.into_iter().map(|(p, _)| p).collect())
+    Ok((StatusCode::CREATED, Json(id)))
 }
