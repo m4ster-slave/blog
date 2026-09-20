@@ -1,7 +1,9 @@
 pub mod about;
 pub mod admin_panel;
 pub mod blog;
+pub mod create_post;
 pub mod devlog;
+pub mod edit_post;
 pub mod home;
 pub mod login;
 pub mod not_found;

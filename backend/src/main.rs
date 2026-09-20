@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 mod auth;
 mod database;
-mod devlogs;
+mod devlog_entries;
 mod models;
 mod posts;
 
@@ -37,6 +37,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/login", post(auth::login))
         .route("/logout", post(auth::logout))
         .route("/admin/check", get(auth::check_session))
+        .route("/devlog/entries", get(devlog_entries::get_devlog_entries))
+        .route("/devlog/entries", post(devlog_entries::create_devlog_entry))
         .with_state(app_state);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
