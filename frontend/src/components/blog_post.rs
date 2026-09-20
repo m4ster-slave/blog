@@ -29,13 +29,16 @@ fn markdown_to_html(markdown: &str) -> String {
     html_output
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct Post {
-    title: String,
-    date: String,
-    summary: String,
-    slug: String,
-    content: Option<String>,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Post {
+    pub id: String,
+    pub title: String,
+    pub slug: String,
+    pub summary: Option<String>,
+    pub content: String,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 async fn fetch_post_by_slug(slug: String) -> Result<Post, String> {
@@ -72,9 +75,9 @@ pub fn BlogPost() -> impl IntoView {
                     <article class="blog-post-content">
                         <header class="blog-post-content_header">
                             <h1 class="blog-post_title">{post.title}</h1>
-                            <p class="blog-post-content_meta">{format_date(&post.date)}</p>
+                            <p class="blog-post-content_meta">{format_date(&post.created_at.to_rfc3339())}</p>
                         </header>
-                        <div class="blog-post-content_body" inner_html={markdown_to_html(&post.content.unwrap_or_else(|| "Content not available".to_string()))}>
+                        <div class="blog-post-content_body" inner_html={markdown_to_html(&post.content)}>
                         </div>
                     </article>
                 }.into_any(),

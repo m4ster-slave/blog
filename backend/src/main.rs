@@ -36,6 +36,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/admin/posts", post(posts::create_post))
         .route("/login", post(auth::login))
         .route("/logout", post(auth::logout))
+        .route("/admin/check", get(auth::check_session))
         .with_state(app_state);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());

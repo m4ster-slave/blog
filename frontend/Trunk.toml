@@ -62,8 +62,11 @@ open = true
 backend = "http://127.0.0.1:3000"
 rewrite = "/api/"
 [[proxy]]
-backend = "http://127.0.0.1:3000/assets/"
-rewrite = "/assets/"
-[[proxy]]
 backend = "http://127.0.0.1:3000/album/"
 rewrite = "/album/"
+[[proxy]]
+backend = "http://127.0.0.1:3000/login"
+rewrite = "/api/admin/login"
+[[proxy]]
+backend = "http://127.0.0.1:3000/admin/check"
+rewrite = "/api/admin/check"

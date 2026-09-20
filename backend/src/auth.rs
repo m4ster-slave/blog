@@ -142,7 +142,7 @@ pub async fn login(
     let mut cookie = Cookie::new("session", session_id.to_string());
     cookie.set_path("/");
     cookie.set_http_only(true);
-    cookie.set_secure(true);
+    cookie.set_secure(false); //TODO when production set to true
     cookie.set_same_site(SameSite::Lax);
 
     let jar = jar.add(cookie);
@@ -181,4 +181,28 @@ pub async fn logout(
     let jar = jar.remove(removal_cookie);
 
     Ok((jar, StatusCode::OK))
+}
+pub async fn check_session(
+    State(state): State<Arc<AppState>>,
+    jar: CookieJar,
+) -> Result<StatusCode, StatusCode> {
+    let session_id = jar
+        .get("session")
+        .and_then(|c| Uuid::parse_str(c.value()).ok())
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    let exists: bool = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM sessions WHERE id = $1)")
+        .bind(session_id)
+        .fetch_one(&state.pool)
+        .await
+        .map_err(|e| {
+            println!("Error finding session: {e}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    if exists {
+        Ok(StatusCode::OK)
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
 }
