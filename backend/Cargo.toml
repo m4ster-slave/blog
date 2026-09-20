@@ -18,6 +18,8 @@ anyhow = "1.0"
 dotenvy = "0.15" 
 uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
+argon2 = "0.6.0"
+axum-extra = { version = "0.12.6", features = ["cookie"] }
 
 
 [profile.release]

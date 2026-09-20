@@ -1,3 +1,4 @@
+use crate::auth::AuthUser;
 use crate::models::post::Post;
 use axum::extract::State;
 use axum::{Json, extract::Query, http::StatusCode};
@@ -48,8 +49,11 @@ pub async fn get_posts(
 
 pub async fn create_post(
     State(state): State<Arc<AppState>>,
+    auth: AuthUser,
     Json(post_data): Json<CreatePostBody>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
+    println!("The user {}, created a post", auth.user.username);
+
     let id = uuid::Uuid::new_v4();
     sqlx::query(
         r#"

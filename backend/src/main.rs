@@ -6,7 +6,9 @@ use axum::{
 use sqlx::PgPool;
 use std::sync::Arc;
 
+mod auth;
 mod database;
+mod devlogs;
 mod models;
 mod posts;
 
@@ -31,7 +33,9 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/posts", get(posts::get_posts))
-        .route("/posts", post(posts::create_post))
+        .route("/admin/posts", post(posts::create_post))
+        .route("/login", post(auth::login))
+        .route("/logout", post(auth::logout))
         .with_state(app_state);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
