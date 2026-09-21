@@ -1,0 +1,58 @@
+.admin-post-list {
+  max-width: 800px;
+  margin: 0 auto;
+
+  h2 {
+    color: #f1f5f9;
+    margin-bottom: 1rem;
+  }
+}
+
+.admin-post-card {
+  cursor: pointer;
+
+  &:hover {
+    border-color: #57329F;
+  }
+}
+
+.admin-post-editor {
+  max-width: 700px;
+  margin: 0 auto;
+
+  &_form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  &_content textarea {
+    min-height: 16rem;
+  }
+
+  &_archived {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+  }
+
+  &_actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    button:last-child {
+      background-color: transparent;
+      border: 1px solid #374151;
+      color: #cbd5e1;
+
+      &:hover {
+        background-color: #4b5563;
+      }
+    }
+  }
+}

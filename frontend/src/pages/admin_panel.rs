@@ -11,9 +11,11 @@ pub fn AdminPanel() -> impl IntoView {
                 Some(Ok(true)) => view! {
                     <section class="page-section">
                         <h1>"Admin panel"</h1>
-                        <a href="/admin/edit">Edit a post</a>
-                        <br></br>
-                        <a href="/admin/create">Create a new post</a>
+                        <div class="admin-panel_links">
+                            <a href="/admin/edit">Edit a post</a>
+                            <br></br>
+                            <a href="/admin/create">Create a new post</a>
+                        </div>
                     </section>
                 }.into_any(),
                 _ => view! { <p>"Access denied. Please log in."</p> }.into_any()

@@ -60,9 +60,10 @@ pub fn Login() -> impl IntoView {
 
     view! {
         <section class="page-section">
-            <form on:submit=submit>
+            <div class="auth-card">
+            <form class = "auth-card_form" on:submit=submit>
                 <label>
-                    "username"
+                    <span>"username"</span>
                     <input
                         type="text"
                         prop:value=username
@@ -73,7 +74,7 @@ pub fn Login() -> impl IntoView {
                 </label>
 
                 <label>
-                    "password"
+                    <span>"password"</span>
                     <input
                         type="password"
                         prop:value=password
@@ -98,6 +99,7 @@ pub fn Login() -> impl IntoView {
                     <p class="error">{error}</p>
                 })}
             </form>
+            </div>
         </section>
     }
 }

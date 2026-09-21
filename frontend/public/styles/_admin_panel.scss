@@ -1,0 +1,17 @@
+.admin-panel_links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+
+  a {
+    color: #60a5fa;
+    font-weight: 600;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #93c5fd;
+    }
+  }
+}

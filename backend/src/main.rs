@@ -40,9 +40,10 @@ async fn main() -> anyhow::Result<()> {
         )
         .route(
             "/admin/posts/{id}",
-            put(posts::edit_post).delete(posts::delete_post),
+            put(posts::edit_post)
+                .delete(posts::delete_post)
+                .get(posts::get_post_by_slug_admin),
         )
-        .route("/admin/posts/{slug}", get(posts::get_post_by_slug_admin))
         .route("/admin/posts/{id}/publish", post(posts::publish_post))
         .route("/login", post(auth::login))
         .route("/logout", post(auth::logout))

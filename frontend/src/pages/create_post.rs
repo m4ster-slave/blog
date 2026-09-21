@@ -70,7 +70,7 @@ pub fn CreatePost() -> impl IntoView {
 
     view! {
         <section class="page-section">
-            <form on:submit=submit>
+            <form class="post-form" on:submit=submit>
                 <label>
                     "title"
                     <input
@@ -103,14 +103,10 @@ pub fn CreatePost() -> impl IntoView {
                     />
                 </label>
                 <label>
-                    "content"
-                    <input
-                        type="content"
-                        prop:value=content
-                        on:input=move |ev| {
-                            content.set(event_target_value(&ev));
-                        }
-                    />
+                    <span>"content"</span>
+                      <textarea prop:value=content
+                         on:input=move |ev| content.set(event_target_value(&ev))
+                     ></textarea>
                 </label>
                 <button
                     type="submit"

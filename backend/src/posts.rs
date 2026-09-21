@@ -35,6 +35,7 @@ pub async fn get_posts(
             title,
             slug,
             summary,
+            archived,
             published_at,
             created_at,
             updated_at
@@ -64,6 +65,7 @@ pub async fn get_post_by_slug(
             title,
             slug,
             summary,
+            archived,
             content,
             published_at,
             created_at,
@@ -160,13 +162,13 @@ pub async fn edit_post(
         r#"
     UPDATE posts
     SET 
-        archived = $2,
-        title = $3,
-        slug = $4,
-        summary = $5,
-        content = $6
+        archived = $1,
+        title = $2,
+        slug = $3,
+        summary = $4,
+        content = $5,
         updated_at = NOW()
-    WHERE id = $7
+    WHERE id = $6
     "#,
     )
     .bind(post_data.archived)
@@ -228,6 +230,7 @@ pub async fn get_posts_admin(
             title,
             slug,
             summary,
+            archived,
             published_at,
             created_at,
             updated_at
@@ -248,7 +251,7 @@ pub async fn get_posts_admin(
 pub async fn get_post_by_slug_admin(
     State(state): State<Arc<AppState>>,
     _auth: AuthUser,
-    Path(slug): Path<String>,
+    Path(id): Path<Uuid>,
 ) -> Result<(StatusCode, Json<Post>), StatusCode> {
     let post = sqlx::query_as::<_, Post>(
         r#"
@@ -257,19 +260,23 @@ pub async fn get_post_by_slug_admin(
             title,
             slug,
             summary,
+            archived,
             content,
             published_at,
             created_at,
             updated_at
         FROM posts
-        WHERE slug = $1
+        WHERE id = $1
         ORDER BY created_at DESC
         "#,
     )
-    .bind(slug)
+    .bind(id)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        println! {"Admin route failed to get post by id: {}", e};
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let post = match post {
         Some(p) => p,

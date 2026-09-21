@@ -87,16 +87,9 @@ pub fn Devlog() -> impl IntoView {
             <section class="page-section">
                 {move || match auth_status.get() {
                     Some(Ok(true)) => view! {
-                        <form on:submit=submit>
+                        <form class="devlog-form" on:submit=submit>
                             <label>
-                                "content"
-                                <input
-                                    type="content"
-                                    prop:value=content
-                                    on:input=move |ev| {
-                                        content.set(event_target_value(&ev));
-                                    }
-                                />
+                                <textarea prop:value=content on:input=move |ev| { content.set(event_target_value(&ev));}></textarea>
                             </label>
                             <button
                                 type="submit"
@@ -122,6 +115,7 @@ pub fn Devlog() -> impl IntoView {
 
                 {move || match entries.get() {
                     Some(Ok(entries)) => view! {
+                        <div class = "devlog-entries">
                         <ul class="blog-list_items">
                             {entries.into_iter().map(|entry| {
                                 view! {
@@ -132,6 +126,7 @@ pub fn Devlog() -> impl IntoView {
                                 }
                             }).collect::<Vec<_>>()}
                         </ul>
+                        </div>
                     }.into_any(),
 
                     Some(Err(e)) => view! {

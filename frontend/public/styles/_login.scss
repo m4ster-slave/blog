@@ -1,0 +1,13 @@
+.auth-card {
+  max-width: 400px;
+  margin: 3rem auto;
+  background-color: #34363a;
+  border: 1px solid #374151;
+  border-radius: 1rem;
+  padding: 2rem;
+
+  &_form {
+    display: flex;
+    flex-direction: column;
+  }
+}
