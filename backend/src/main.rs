@@ -1,7 +1,7 @@
 use anyhow::Ok;
 use axum::{
     Router,
-    routing::{get, post},
+    routing::{delete, get, post, put},
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -34,11 +34,18 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/posts", get(posts::get_posts))
         .route("/admin/posts", post(posts::create_post))
+        .route(
+            "/admin/posts/:id",
+            put(posts::edit_post).delete(posts::delete_post),
+        )
+        .route("/admin/posts/:id/publish", post(posts::publish_post))
         .route("/login", post(auth::login))
         .route("/logout", post(auth::logout))
         .route("/admin/check", get(auth::check_session))
-        .route("/devlog/entries", get(devlog_entries::get_devlog_entries))
-        .route("/devlog/entries", post(devlog_entries::create_devlog_entry))
+        .route(
+            "/devlog/entries",
+            get(devlog_entries::get_devlog_entries).post(devlog_entries::create_devlog_entry),
+        )
         .with_state(app_state);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
