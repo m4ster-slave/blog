@@ -1,21 +1,10 @@
 use leptos::prelude::*;
-use reqwasm::http::Request;
 
-async fn is_admin() -> Result<bool, String> {
-    let resp = Request::get("/api/admin/check")
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-
-    match resp.status() {
-        200 => Ok(true),
-        _ => Ok(false),
-    }
-}
+use crate::utils;
 
 #[component]
 pub fn AdminPanel() -> impl IntoView {
-    let auth_status = LocalResource::new(is_admin);
+    let auth_status = LocalResource::new(utils::is_admin);
     view! {
         <Suspense fallback=move || view! { <p>"Checking authorization..."</p> }>
             {move || match auth_status.get() {

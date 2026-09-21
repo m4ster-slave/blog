@@ -1,21 +1,9 @@
-use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Post {
-    pub id: String,
-    pub title: String,
-    pub slug: String,
-    pub summary: Option<String>,
-    pub content: String,
-    pub published_at: Option<DateTime<Utc>>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
+use crate::models::post::Post;
 
 async fn fetch_posts(page: i32) -> Result<Vec<Post>, String> {
     let url = format!("/api/posts?page={}", page);

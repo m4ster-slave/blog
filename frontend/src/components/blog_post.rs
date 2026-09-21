@@ -3,7 +3,8 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use pulldown_cmark::{html, Options, Parser};
 use reqwasm::http::Request;
-use serde::{Deserialize, Serialize};
+
+use crate::models::post::Post;
 
 fn format_date(date_str: &str) -> String {
     match DateTime::parse_from_rfc3339(date_str) {
@@ -27,18 +28,6 @@ fn markdown_to_html(markdown: &str) -> String {
     let mut html_output = String::new();
     html::push_html(&mut html_output, parser);
     html_output
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Post {
-    pub id: String,
-    pub title: String,
-    pub slug: String,
-    pub summary: Option<String>,
-    pub content: String,
-    pub published_at: Option<DateTime<Utc>>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
 }
 
 async fn fetch_post_by_slug(slug: String) -> Result<Post, String> {

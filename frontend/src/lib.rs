@@ -3,7 +3,9 @@ use leptos_meta::*;
 use leptos_router::{components::*, path};
 
 mod components;
+mod models;
 mod pages;
+mod utils;
 
 use crate::components::blog_post::BlogPost;
 use crate::components::navbar::Navbar;

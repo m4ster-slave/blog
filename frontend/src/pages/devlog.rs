@@ -1,34 +1,10 @@
-use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use leptos::web_sys::SubmitEvent;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
-use serde::{Deserialize, Serialize};
 
-async fn is_admin() -> Result<bool, String> {
-    let resp = Request::get("/api/admin/check")
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-
-    match resp.status() {
-        200 => Ok(true),
-        _ => Ok(false),
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct DevlogEntry {
-    pub id: String,
-    pub content: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize)]
-struct CreateDevlogEntryRequest {
-    content: String,
-}
+use crate::models::devlog_entry::*;
+use crate::utils;
 
 async fn fetch_entries(page: i32) -> Result<Vec<DevlogEntry>, String> {
     let url = format!("/api/devlog/entries?page={}", page);
@@ -46,7 +22,7 @@ pub fn Devlog() -> impl IntoView {
         fetch_entries(current_page)
     });
 
-    let auth_status = LocalResource::new(is_admin);
+    let auth_status = LocalResource::new(utils::is_admin);
 
     let content = RwSignal::new(String::new());
     let error = RwSignal::new(None::<String>);

@@ -2,13 +2,8 @@ use leptos::prelude::*;
 use leptos::web_sys::SubmitEvent;
 use leptos_router::hooks::use_navigate;
 use reqwasm::http::Request;
-use serde::Serialize;
 
-#[derive(Serialize)]
-struct LoginRequest {
-    username: String,
-    password: String,
-}
+use crate::models::login::LoginRequest;
 
 #[component]
 pub fn Login() -> impl IntoView {

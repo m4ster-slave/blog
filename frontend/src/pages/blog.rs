@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-
 use leptos_router::hooks::query_signal;
 
 use crate::components::blog_list::BlogList;
