@@ -31,17 +31,14 @@ fn markdown_to_html(markdown: &str) -> String {
 }
 
 async fn fetch_post_by_slug(slug: String) -> Result<Post, String> {
-    let resp = Request::get(&format!("/api/posts?slug={}", slug))
+    let resp = Request::get(&format!("/api/posts/{}", slug))
         .send()
         .await
         .map_err(|e| e.to_string())?;
     let json = resp.text().await.map_err(|e| e.to_string())?;
-    let posts: Vec<Post> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
+    let post: Post = serde_json::from_str(&json).map_err(|e| e.to_string())?;
 
-    posts
-        .into_iter()
-        .next()
-        .ok_or_else(|| "Post not found".to_string())
+    Ok(post)
 }
 
 #[component]
@@ -66,7 +63,7 @@ pub fn BlogPost() -> impl IntoView {
                             <h1 class="blog-post_title">{post.title}</h1>
                             <p class="blog-post-content_meta">{format_date(&post.created_at.to_rfc3339())}</p>
                         </header>
-                        <div class="blog-post-content_body" inner_html={markdown_to_html(&post.content)}>
+                        <div class="blog-post-content_body" inner_html={markdown_to_html(&post.content.unwrap())}>
                         </div>
                     </article>
                 }.into_any(),

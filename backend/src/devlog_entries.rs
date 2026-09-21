@@ -1,6 +1,6 @@
 use crate::auth::AuthUser;
 use crate::models::devlog::Devlog;
-use axum::extract::State;
+use axum::extract::{Path, State};
 use axum::{Json, extract::Query, http::StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::AppState;
 
 #[derive(Debug, Deserialize)]
-pub struct CreateDevlogBody {
+pub struct DevlogBody {
     content: String,
 }
 
@@ -36,7 +36,7 @@ pub async fn get_devlog_entries(
 pub async fn create_devlog_entry(
     State(state): State<Arc<AppState>>,
     auth: AuthUser,
-    Json(entry_data): Json<CreateDevlogBody>,
+    Json(entry_data): Json<DevlogBody>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
     println!("The user {}, created a devlog entry", auth.user.username);
 
@@ -60,4 +60,57 @@ pub async fn create_devlog_entry(
     })?;
 
     Ok((StatusCode::CREATED, Json(id)))
+}
+
+pub async fn delete_devlog_entry(
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
+    println!("The user {}, deleted a devlog entry", auth.user.username);
+
+    sqlx::query(
+        r#"
+            DELETE FROM devlog_entries 
+            WHERE id = $1
+            "#,
+    )
+    .bind(id)
+    .execute(&state.pool)
+    .await
+    .map_err(|e| {
+        println!("Error deleting devlog_entry: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::NO_CONTENT, Json(id)))
+}
+
+pub async fn edit_devlog_entry(
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<uuid::Uuid>,
+    Json(entry_data): Json<DevlogBody>,
+) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
+    println!("The user {}, edited a devlog entry", auth.user.username);
+
+    sqlx::query(
+        r#"
+    UPDATE devlog_entries
+    SET 
+        content = $1
+        updated_at = NOW()
+    WHERE id = $2
+    "#,
+    )
+    .bind(entry_data.content)
+    .bind(id)
+    .execute(&state.pool)
+    .await
+    .map_err(|e| {
+        println!("Error updating devlog_entry: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::OK, Json(id)))
 }

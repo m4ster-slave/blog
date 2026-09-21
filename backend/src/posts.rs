@@ -1,18 +1,12 @@
 use crate::auth::AuthUser;
-use crate::models::post::Post;
+use crate::models::post::{Post, PostSummary};
 use axum::extract::{Path, State};
-use axum::{Json, extract::Query, http::StatusCode};
+use axum::{Json, http::StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::AppState;
-
-#[derive(Debug, Deserialize)]
-pub struct SlugPageQuery {
-    slug: Option<String>,
-    page: Option<usize>,
-}
 
 #[derive(Debug, Deserialize)]
 pub struct EditPostQuery {
@@ -21,7 +15,6 @@ pub struct EditPostQuery {
     summary: String,
     content: String,
     archived: bool,
-    publish: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -33,10 +26,38 @@ pub struct CreatePostBody {
 }
 
 pub async fn get_posts(
-    Query(_query): Query<SlugPageQuery>,
     State(state): State<Arc<AppState>>,
-) -> Result<(StatusCode, Json<Vec<Post>>), StatusCode> {
-    let posts = sqlx::query_as::<_, Post>(
+) -> Result<(StatusCode, Json<Vec<PostSummary>>), StatusCode> {
+    let posts = sqlx::query_as::<_, PostSummary>(
+        r#"
+        SELECT
+            id,
+            title,
+            slug,
+            summary,
+            published_at,
+            created_at,
+            updated_at
+        FROM posts
+        WHERE archived = false
+        ORDER BY published_at DESC
+        "#,
+    )
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|e| {
+        println!("Fetch error on posts: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::OK, Json(posts)))
+}
+
+pub async fn get_post_by_slug(
+    State(state): State<Arc<AppState>>,
+    Path(slug): Path<String>,
+) -> Result<(StatusCode, Json<Post>), StatusCode> {
+    let post = sqlx::query_as::<_, Post>(
         r#"
         SELECT
             id,
@@ -48,14 +69,22 @@ pub async fn get_posts(
             created_at,
             updated_at
         FROM posts
+        WHERE slug = $1
+            AND archived = false
         ORDER BY created_at DESC
         "#,
     )
-    .fetch_all(&state.pool)
+    .bind(slug)
+    .fetch_optional(&state.pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::OK, Json(posts)))
+    let post = match post {
+        Some(p) => p,
+        None => return Err(StatusCode::NOT_FOUND),
+    };
+
+    Ok((StatusCode::OK, Json(post)))
 }
 
 pub async fn create_post(
@@ -112,7 +141,7 @@ pub async fn delete_post(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error deleting session: {}", e);
+        println!("Error deleting post: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -153,7 +182,7 @@ pub async fn edit_post(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    Ok((StatusCode::CREATED, Json(id)))
+    Ok((StatusCode::OK, Json(id)))
 }
 
 pub async fn publish_post(
@@ -186,4 +215,66 @@ pub async fn publish_post(
     }
 
     Ok(StatusCode::OK)
+}
+
+pub async fn get_posts_admin(
+    State(state): State<Arc<AppState>>,
+    _auth: AuthUser,
+) -> Result<(StatusCode, Json<Vec<PostSummary>>), StatusCode> {
+    let posts = sqlx::query_as::<_, PostSummary>(
+        r#"
+        SELECT
+            id,
+            title,
+            slug,
+            summary,
+            published_at,
+            created_at,
+            updated_at
+        FROM posts
+        ORDER BY created_at DESC
+        "#,
+    )
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|e| {
+        println!("Fetch error on posts: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok((StatusCode::OK, Json(posts)))
+}
+
+pub async fn get_post_by_slug_admin(
+    State(state): State<Arc<AppState>>,
+    _auth: AuthUser,
+    Path(slug): Path<String>,
+) -> Result<(StatusCode, Json<Post>), StatusCode> {
+    let post = sqlx::query_as::<_, Post>(
+        r#"
+        SELECT
+            id,
+            title,
+            slug,
+            summary,
+            content,
+            published_at,
+            created_at,
+            updated_at
+        FROM posts
+        WHERE slug = $1
+        ORDER BY created_at DESC
+        "#,
+    )
+    .bind(slug)
+    .fetch_optional(&state.pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let post = match post {
+        Some(p) => p,
+        None => return Err(StatusCode::NOT_FOUND),
+    };
+
+    Ok((StatusCode::OK, Json(post)))
 }
