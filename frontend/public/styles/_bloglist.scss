@@ -1,8 +1,9 @@
 .blog-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem 0;
 
@@ -10,7 +11,13 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    width: 100%;
   }
+}
+
+.blog-card-link {
+  display: block;
+  width: 100%;
 }
 
 .blog-card {
@@ -20,6 +27,7 @@
   padding: 1.5rem;
   transition: all 0.3s ease;
   width: 100%;
+  max-inline-size: none;
   align-items: center;
   text-align: center;
 
@@ -33,6 +41,7 @@
     font-size: 1.375rem;
     font-weight: 700;
     width: 100%;
+    max-inline-size: none;
     color: #f1f5f9;
     margin-bottom: 0.5rem;
     transition: color 0.2s ease;
@@ -42,12 +51,14 @@
     font-size: 0.875rem;
     color: #94a3b8;
     width: 100%;
+    max-inline-size: none;
     margin-bottom: 1rem;
   }
 
   &_summary {
     color: #cbd5e1;
     width: 100%;
+    max-inline-size: none;
     line-height: 1.6;
     font-size: 1rem;
   }
