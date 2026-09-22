@@ -156,7 +156,9 @@ pub fn AdminEntry(entry: DevlogEntry, on_delete: Callback<()>) -> impl IntoView 
 
 #[component]
 pub fn Devlog() -> impl IntoView {
-    let (page, _set_page) = query_signal::<i32>("page");
+    let (page, set_page) = query_signal::<i32>("page");
+    let decrement = move |_| set_page.set(Some((page.get().unwrap_or(0) - 1).max(0)));
+    let increment = move |_| set_page.set(Some(page.get().unwrap_or(0) + 1));
 
     let refresh_trigger = RwSignal::new(0u32);
     let entries = LocalResource::new(move || {
@@ -293,6 +295,11 @@ pub fn Devlog() -> impl IntoView {
                         </div>
                     }.into_any(),
                 }}
+
+                <div class = "bloglist-nav">
+                    <button class="arrow" on:click=decrement>"<-"</button>
+                    <button class="arrow" on:click=increment>"->"</button>
+                </div>
 
             </section>
         </ErrorBoundary>

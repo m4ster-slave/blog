@@ -1,6 +1,6 @@
 use crate::auth::AuthUser;
 use crate::models::post::{Post, PostSummary};
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::{Json, http::StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
@@ -27,7 +27,12 @@ pub struct CreatePostBody {
 
 pub async fn get_posts(
     State(state): State<Arc<AppState>>,
+    Query(pagination): Query<crate::models::pagination::Pagination>,
 ) -> Result<(StatusCode, Json<Vec<PostSummary>>), StatusCode> {
+    let page = pagination.page.unwrap_or(0).max(0);
+    let limit = pagination.limit.unwrap_or(20).clamp(1, 100);
+    let offset = page * limit;
+
     let posts = sqlx::query_as::<_, PostSummary>(
         r#"
         SELECT
@@ -42,8 +47,12 @@ pub async fn get_posts(
         FROM posts
         WHERE archived = false
         ORDER BY published_at DESC
+        LIMIT $1
+        OFFSET $2
         "#,
     )
+    .bind(limit)
+    .bind(offset)
     .fetch_all(&state.pool)
     .await
     .map_err(|e| {
