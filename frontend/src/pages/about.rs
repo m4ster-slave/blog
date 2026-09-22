@@ -29,10 +29,10 @@ pub fn About() -> impl IntoView {
                         </div>
 
                         <div class="person-info">
-                            <h2>whoami</h2>
+                            <h2>$ whoami</h2>
                             <p>"Hey my name is Lukiana! I'm passionate about the computer, cyber security and OSS~ In my free time i ocassionaly dabble in hobby politics. Im a part time misanthropic drunken looser and a full time nerd. I like writing software In rust, use Arch Linux and use an old ThinkPad as my laptop - I am the whole stereotype package."</p>
 
-                            <h2>Favorite Artists</h2>
+                            <h2>$ cat favorite_artists.txt</h2>
                             <p>Pat The Bunny, Title Fight, The Front Bottoms Anda Morts, Modern Baseball, Pigeon Pit, Car Seat Headrest, ESA, Asking for it, Knochenfabrik</p>
                         </div>
 

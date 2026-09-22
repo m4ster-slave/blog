@@ -52,6 +52,37 @@ async fn update_post(id: Uuid, payload: UpdatePostPayload) -> Result<String, Str
     Ok(uuid)
 }
 
+async fn delete_post(id: Uuid) -> Result<String, String> {
+    let url = format!("/api/admin/posts/{}", id);
+    let resp = Request::delete(&url)
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if resp.status() != 204 {
+        return Err(format!("server returned status {}", resp.status()));
+    }
+
+    let uuid = resp.text().await.map_err(|e| e.to_string())?;
+    Ok(uuid)
+}
+
+async fn publish_post(id: Uuid) -> Result<(), String> {
+    let url = format!("/api/admin/posts/{}/publish", id);
+    let resp = Request::post(&url)
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !resp.ok() {
+        return Err(format!("server returned status {}", resp.status()));
+    }
+
+    Ok(())
+}
+
 #[component]
 pub fn EditPost() -> impl IntoView {
     let selected_id = RwSignal::new(None::<Uuid>);
@@ -175,6 +206,30 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
         });
     };
 
+    let delete = move |_| {
+        saving.set(true);
+        save_error.set(None);
+        leptos::task::spawn_local(async move {
+            match delete_post(id).await {
+                Ok(_) => on_saved.run(()),
+                Err(e) => save_error.set(Some(e)),
+            }
+            saving.set(false);
+        });
+    };
+
+    let publish = move |_| {
+        saving.set(true);
+        save_error.set(None);
+        leptos::task::spawn_local(async move {
+            match publish_post(id).await {
+                Ok(_) => on_saved.run(()),
+                Err(e) => save_error.set(Some(e)),
+            }
+            saving.set(false);
+        });
+    };
+
     view! {
         <div class="admin-post-editor">
             {move || match post_resource.get() {
@@ -229,6 +284,8 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                                 {move || if saving.get() { "Saving..." } else { "Save" }}
                             </button>
                             <button on:click=move |_| on_close.run(())>"Cancel"</button>
+                            <button on:click=delete >"Delete"</button>
+                            <button on:click=publish >"Publish"</button>
                         </div>
                     </div>
                 }.into_any(),

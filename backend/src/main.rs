@@ -1,7 +1,7 @@
 use anyhow::Ok;
 use axum::{
     Router,
-    routing::{delete, get, post, put},
+    routing::{get, post, put},
 };
 use sqlx::PgPool;
 use std::sync::Arc;

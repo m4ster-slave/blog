@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use leptos::web_sys::SubmitEvent;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
+use serde::Serialize;
 
 use crate::models::devlog_entry::*;
 use crate::utils;
@@ -15,9 +16,143 @@ async fn fetch_entries(page: i32) -> Result<Vec<DevlogEntry>, String> {
 }
 
 #[component]
+pub fn Entry(entry: DevlogEntry) -> impl IntoView {
+    view! {
+            <li class="devlog-card">
+                <p class="devlog-card_date">{format!("{}", entry.created_at)}</p>
+                <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&entry.content)}>
+                </div>
+            </li>
+    }
+}
+
+async fn delete_entry(id: String) -> Result<String, String> {
+    let url = format!("/api/devlog/entries/{}", id);
+    let resp = Request::delete(&url)
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if resp.status() != 204 {
+        return Err(format!("server returned status {}", resp.status()));
+    }
+
+    let uuid = resp.text().await.map_err(|e| e.to_string())?;
+    Ok(uuid)
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct UpdateEntryPayload {
+    content: String,
+}
+
+async fn update_entry(id: String, payload: UpdateEntryPayload) -> Result<String, String> {
+    let url = format!("/api/devlog/entries/{}", id);
+    let body = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
+    let resp = Request::put(&url)
+        .header("Content-Type", "application/json")
+        .body(body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    if !resp.ok() {
+        return Err(format!("server returned status {}", resp.status()));
+    }
+    let uuid = resp.text().await.map_err(|e| e.to_string())?;
+    Ok(uuid)
+}
+
+#[component]
+pub fn AdminEntry(entry: DevlogEntry, on_delete: Callback<()>) -> impl IntoView {
+    let editing = RwSignal::new(false);
+    let content = RwSignal::new(entry.content.clone());
+    let save_error = RwSignal::new(None::<String>);
+
+    let entry_id = entry.id.clone();
+
+    let delete_entry_fn = StoredValue::new({
+        let entry_id = entry_id.clone();
+        move |_| {
+            let id = entry_id.clone();
+            leptos::task::spawn_local(async move {
+                match delete_entry(id).await {
+                    Ok(_) => {
+                        editing.set(false);
+                        on_delete.run(());
+                        save_error.set(None)
+                    }
+                    Err(e) => save_error.set(Some(e)),
+                }
+            });
+        }
+    });
+
+    let submit_entry_fn = StoredValue::new({
+        let entry_id = entry_id.clone();
+        move |_| {
+            let id = entry_id.clone();
+            let payload = UpdateEntryPayload {
+                content: content.get(),
+            };
+
+            leptos::task::spawn_local(async move {
+                match update_entry(id, payload).await {
+                    Ok(_) => {
+                        editing.set(false);
+                        save_error.set(None)
+                    }
+                    Err(e) => save_error.set(Some(e)),
+                }
+            });
+        }
+    });
+
+    view! {
+        <li class="devlog-card">
+            <p class="devlog-card_date">{format!("{}", entry.created_at)}</p>
+
+            <button class="devlog-card_edit_button" on:click=move |_| editing.update(|e| *e = !*e)>
+                {move || if editing.get() {"End edit"} else {"Edit"}}
+            </button>
+
+            { move || if editing.get() {
+                view! {
+                    <label>
+                        "Content"
+                        <textarea
+                            class="admin-post-editor_content"
+                            prop:value=content
+                            on:input=move |ev| content.set(event_target_value(&ev))
+                        ></textarea>
+                    </label>
+                    <div class="devlog-editor_actions">
+                        <button on:click=move |ev| submit_entry_fn.with_value(|f| f(ev))>"Save"</button>
+                        <button on:click=move |ev| delete_entry_fn.with_value(|f| f(ev))>"Delete"</button>
+                    </div>
+                    {move || save_error.get().map(|e| view! {
+                        <div class="error-message">
+                            <p>{format!("Failed to save: {}", e)}</p>
+                        </div>
+                    })}
+                }.into_any()
+            } else {
+                view! {
+                    <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&content.get())}>
+                    </div>
+                }.into_any()
+            }}
+        </li>
+    }
+}
+
+#[component]
 pub fn Devlog() -> impl IntoView {
     let (page, _set_page) = query_signal::<i32>("page");
+
+    let refresh_trigger = RwSignal::new(0u32);
     let entries = LocalResource::new(move || {
+        refresh_trigger.get();
         let current_page = page.get().unwrap_or(0);
         fetch_entries(current_page)
     });
@@ -107,22 +242,32 @@ pub fn Devlog() -> impl IntoView {
                             })}
                         </form>
 
+                        <hr></hr>
+
                     }.into_any(),
-                    _ => view! { <p>"Access denied. Please log in."</p> }.into_any()
+                    _ => ().into_any()
                 }}
 
-                <hr></hr>
 
                 {move || match entries.get() {
                     Some(Ok(entries)) => view! {
                         <div class = "devlog-entries">
                         <ul class="blog-list_items">
                             {entries.into_iter().map(|entry| {
-                                view! {
-                                        <li class="blog-card">
-                                            <p class="blog-card_meta">{format!("{}", entry.created_at)}</p>
-                                            <p class="blog-card_summary">{entry.content}</p>
-                                        </li>
+                                match auth_status.get() {
+                                    Some(Ok(true)) => view! {
+                                        <AdminEntry
+                                            entry = entry
+                                            on_delete=Callback::new(move |_| {
+                                                refresh_trigger.update(|n| *n += 1);
+                                            })
+                                        />
+                                    }.into_any(),
+                                    _ => view! {
+                                        <Entry
+                                            entry = entry
+                                        />
+                                    }.into_any()
                                 }
                             }).collect::<Vec<_>>()}
                         </ul>

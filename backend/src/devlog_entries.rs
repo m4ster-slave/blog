@@ -1,7 +1,7 @@
 use crate::auth::AuthUser;
 use crate::models::devlog::Devlog;
 use axum::extract::{Path, State};
-use axum::{Json, extract::Query, http::StatusCode};
+use axum::{Json, http::StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
 
@@ -98,7 +98,7 @@ pub async fn edit_devlog_entry(
         r#"
     UPDATE devlog_entries
     SET 
-        content = $1
+        content = $1,
         updated_at = NOW()
     WHERE id = $2
     "#,
