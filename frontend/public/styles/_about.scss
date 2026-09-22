@@ -3,9 +3,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
   gap: 3rem;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
 
@@ -46,9 +45,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
-
-
+  width: 100%;
 
   h2 {
     font-size: 1.5rem;
@@ -125,4 +122,10 @@
       height: 22px;
     }
   }
+}
+
+.shell_dollar {
+  color: greenyellow;
+  padding-right: 0.8rem;
+
 }

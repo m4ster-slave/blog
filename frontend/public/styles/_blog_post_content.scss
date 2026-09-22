@@ -2,7 +2,15 @@
   padding: 2rem;
   max-width: none;
   width: 100%;
+  max-width: 1200px;
   display: block;
+  justify-self: center;
+
+  &_meta {
+    display: flex;
+    align-items: left;
+    flex-direction: column;
+  }
 
   &_header {
     display: flex;
@@ -17,7 +25,7 @@
     }
 
     h1 {
-      color: f1f5f9;
+      color: #f1f5f9;
       margin: 0;
 
       @media (max-width: 768px) {

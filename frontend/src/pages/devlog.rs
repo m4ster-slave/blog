@@ -250,7 +250,6 @@ pub fn Devlog() -> impl IntoView {
                             })}
                         </form>
 
-                        <hr></hr>
 
                     }.into_any(),
                     _ => ().into_any()

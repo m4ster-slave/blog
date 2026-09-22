@@ -45,9 +45,14 @@ pub fn BlogPost() -> impl IntoView {
                 Some(Ok(post)) => view! {
                     <article class="blog-post-content">
                         <header class="blog-post-content_header">
-                            <h1 class="blog-post_title">{post.title}</h1>
-                            <p class="blog-post-content_meta">{format_date(&post.created_at.to_rfc3339())}</p>
+                            <h1>{post.title}</h1>
+                            <div class="blog-post-content_meta">
+                                <p><b>published: {post.published_at.unwrap().to_string()}</b></p>
+                                <p>created: {post.created_at.to_string()}</p>
+                                <p>updated: {post.updated_at.to_string()}</p>
+                            </div>
                         </header>
+                        <hr></hr>
                         <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&post.content.unwrap())}>
                         </div>
                     </article>
