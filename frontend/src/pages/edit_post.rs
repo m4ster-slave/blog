@@ -234,9 +234,9 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
         <div class="admin-post-editor">
             {move || match post_resource.get() {
                 Some(Ok(_)) => view! {
-                    <div class="admin-post-editor_form">
+                    <form class="post-form" on:submit=submit>
                         <label>
-                            "Title"
+                            "title"
                             <input
                                 type="text"
                                 prop:value=move || title.get()
@@ -244,7 +244,7 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                             />
                         </label>
                         <label>
-                            "Slug"
+                            "slug"
                             <input
                                 type="text"
                                 prop:value=move || slug.get()
@@ -252,14 +252,14 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                             />
                         </label>
                         <label>
-                            "Summary"
+                            "summary"
                             <textarea
                                 prop:value=move || summary.get()
                                 on:input=move |ev| summary.set(event_target_value(&ev))
                             ></textarea>
                         </label>
                         <label>
-                            "Content"
+                            "content"
                             <textarea
                                 class="admin-post-editor_content"
                                 prop:value=move || content.get()
@@ -272,7 +272,7 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                                 prop:checked=move || archived.get()
                                 on:change=move |ev| archived.set(event_target_checked(&ev))
                             />
-                            "Archived"
+                            "archived"
                         </label>
 
                         {move || save_error.get().map(|e| view! {
@@ -280,14 +280,14 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                         })}
 
                         <div class="admin-post-editor_actions">
-                            <button on:click=submit disabled=move || saving.get()>
+                            <button type="submit" disabled=move || saving.get()>
                                 {move || if saving.get() { "Saving..." } else { "Save" }}
                             </button>
-                            <button on:click=move |_| on_close.run(())>"Cancel"</button>
-                            <button on:click=delete >"Delete"</button>
-                            <button on:click=publish >"Publish"</button>
+                            <button type="button" on:click=move |_| on_close.run(())>"Cancel"</button>
+                            <button type="button" on:click=delete >"Delete"</button>
+                            <button type="button" on:click=publish >"Publish"</button>
                         </div>
-                    </div>
+                    </form>
                 }.into_any(),
                 Some(Err(e)) => view! {
                     <div class="error-message">

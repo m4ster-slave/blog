@@ -85,7 +85,7 @@ pub fn CreatePost() -> impl IntoView {
                 <label>
                     "slug"
                     <input
-                        type="slug"
+                        type="text"
                         prop:value=slug
                         on:input=move |ev| {
                             slug.set(event_target_value(&ev));
@@ -94,19 +94,19 @@ pub fn CreatePost() -> impl IntoView {
                 </label>
                 <label>
                     "summary"
-                    <input
-                        type="summary"
+                    <textarea
                         prop:value=summary
                         on:input=move |ev| {
                             summary.set(event_target_value(&ev));
                         }
-                    />
+                    ></textarea>
                 </label>
                 <label>
-                    <span>"content"</span>
-                      <textarea prop:value=content
-                         on:input=move |ev| content.set(event_target_value(&ev))
-                     ></textarea>
+                    "content"
+                    <textarea
+                        prop:value=content
+                        on:input=move |ev| content.set(event_target_value(&ev))
+                    ></textarea>
                 </label>
                 <button
                     type="submit"

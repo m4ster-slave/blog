@@ -21,18 +21,7 @@
 }
 
 .admin-post-editor {
-  max-width: 700px;
   margin: 0 auto;
-
-  &_form {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-  }
-
-  &_content textarea {
-    min-height: 16rem;
-  }
 
   &_archived {
     flex-direction: row;
@@ -48,8 +37,9 @@
     display: flex;
     gap: 1rem;
     margin-top: 1rem;
+    flex-wrap: wrap;
 
-    button:last-child {
+    button:not([type="submit"]) {
       background-color: transparent;
       border: 1px solid #374151;
       color: #cbd5e1;

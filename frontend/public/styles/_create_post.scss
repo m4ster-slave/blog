@@ -6,6 +6,10 @@
   text-align: left;
 
   textarea {
+    min-height: 6rem;
+  }
+
+  textarea:last-of-type {
     min-height: 16rem;
   }
 }
