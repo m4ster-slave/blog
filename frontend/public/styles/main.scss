@@ -4,13 +4,15 @@
 @import "utilities";
 @import "about";
 @import "home";
-@import "album";
 @import "forms";
 @import "login";
 @import "create_post";
 @import "devlog";
 @import "admin_panel";
 @import "edit_post";
+@import "navbar";
+@import "bloglist";
+@import "blog_post_content";
 
 @import url("https://unpkg.com/open-props/normalize.min.css");
 @import url("https://unpkg.com/open-props/buttons.min.css");

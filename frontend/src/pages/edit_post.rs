@@ -99,7 +99,7 @@ pub fn EditPost() -> impl IntoView {
                 when=move || selected_id.get().is_some()
                 fallback=move || view! {
                     <div class="admin-post-list">
-                        <h2>"All Posts"</h2>
+                        <h2>"Edit Posts"</h2>
                         {move || match posts.get() {
                             Some(Ok(posts)) => view! {
                                 <ul class="blog-list_items">

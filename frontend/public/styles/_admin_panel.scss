@@ -1,17 +1,59 @@
-.admin-panel_links {
+.admin-panel {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   align-items: center;
-  margin-top: 1.5rem;
+  justify-content: center;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  /* Centers the admin container on the page */
+  padding: 2rem 1rem;
 
-  a {
-    color: #60a5fa;
-    font-weight: 600;
-    transition: color 0.2s ease;
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
-    &:hover {
-      color: #93c5fd;
+  // Matches <div class="admin-panel_links">
+  &_links {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    /* Adds space between the two buttons */
+    width: 100%;
+    max-width: 800px;
+    /* Adjusts maximum width of button group */
+
+    a {
+      flex: 1;
+      /* Gives both buttons equal width */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      text-decoration: none;
+
+      color: #60a5fa;
+      background-color: #34363a;
+      border: 1px solid #374151;
+      border-radius: 1rem;
+
+      padding: 3rem 2rem;
+      /* Creates big buttons */
+      font-size: 1.25rem;
+      font-weight: 600;
+      box-sizing: border-box;
+
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        color: #93c5fd;
+        border-color: #57329f;
+      }
     }
   }
 }

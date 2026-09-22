@@ -1,0 +1,49 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: #34363a;
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid #57329F;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  &_nav {
+    display: flex;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    a {
+      color: #cbd5e1;
+      font-weight: 500;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #f1f5f9;
+      }
+    }
+  }
+
+  &_back {
+    font-family: BBold;
+
+    a {
+      color: #94a3b8;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #60a5fa;
+      }
+    }
+  }
+}

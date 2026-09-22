@@ -19,8 +19,10 @@ async fn fetch_entries(page: i32) -> Result<Vec<DevlogEntry>, String> {
 pub fn Entry(entry: DevlogEntry) -> impl IntoView {
     view! {
             <li class="devlog-card">
-                <p class="devlog-card_date">{format!("{}", entry.created_at)}</p>
-                <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&entry.content)}>
+                <div class="devlog-card_header">
+                    <p class="devlog-card_date">{format!("{}", entry.created_at)}</p>
+                </div>
+                <div class="devlog-card_body" inner_html={crate::utils::markdown_to_html(&entry.content)}>
                 </div>
             </li>
     }
@@ -110,18 +112,24 @@ pub fn AdminEntry(entry: DevlogEntry, on_delete: Callback<()>) -> impl IntoView 
 
     view! {
         <li class="devlog-card">
-            <p class="devlog-card_date">{format!("{}", entry.created_at)}</p>
+            <div class="devlog-card_header">
+                <p class="devlog-card_date">
+                    {format!("{}", entry.created_at)}
+                </p>
 
-            <button class="devlog-card_edit_button" on:click=move |_| editing.update(|e| *e = !*e)>
-                {move || if editing.get() {"End edit"} else {"Edit"}}
-            </button>
+                <button class="devlog-card_edit-button"
+                    on:click=move |_| editing.update(|e| *e = !*e)
+                >
+                    {move || if editing.get() {"End edit"} else {"Edit"}}
+                </button>
+            </div>
 
             { move || if editing.get() {
                 view! {
                     <label>
                         "Content"
                         <textarea
-                            class="admin-post-editor_content"
+                            class="devlog-editor_content"
                             prop:value=content
                             on:input=move |ev| content.set(event_target_value(&ev))
                         ></textarea>
@@ -138,7 +146,7 @@ pub fn AdminEntry(entry: DevlogEntry, on_delete: Callback<()>) -> impl IntoView 
                 }.into_any()
             } else {
                 view! {
-                    <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&content.get())}>
+                    <div class="devlog-card_body" inner_html={crate::utils::markdown_to_html(&content.get())}>
                     </div>
                 }.into_any()
             }}
@@ -252,7 +260,7 @@ pub fn Devlog() -> impl IntoView {
                 {move || match entries.get() {
                     Some(Ok(entries)) => view! {
                         <div class = "devlog-entries">
-                        <ul class="blog-list_items">
+                        <ul class="devlog-entries_items">
                             {entries.into_iter().map(|entry| {
                                 match auth_status.get() {
                                     Some(Ok(true)) => view! {
