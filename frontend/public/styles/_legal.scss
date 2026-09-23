@@ -1,0 +1,141 @@
+.legal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  color: #cbd5e1;
+
+  @media (max-width: 768px) {
+    gap: 2rem;
+    padding: 1rem;
+  }
+}
+
+.legal-header {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+    font-weight: bold;
+  }
+
+  p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+}
+
+.legal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+
+  section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  img {
+    border-radius: 1rem;
+    max-width: 300px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    text-align: center;
+    min-width: 40%;
+
+    color: #f1f5f9;
+    border-bottom: 2px solid var(--accent-color, #666);
+    padding-bottom: 0.25rem;
+  }
+
+  p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-align: justify;
+    color: #cbd5e1;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  a {
+    color: var(--accent-color, #60a5fa);
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #f1f5f9;
+    }
+  }
+
+  ul,
+  ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.legal-eyebrow {
+  color: greenyellow !important;
+  font-family: monospace;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.5rem;
+
+  &::before {
+    content: "$ ";
+  }
+}
+
+.legal-updated {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+}
+
+@media (max-width: 480px) {
+  .legal-container {
+    padding: 1rem;
+  }
+
+  .legal-header h1 {
+    font-size: 2rem;
+  }
+
+  .legal-content {
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    p {
+      text-align: left;
+    }
+  }
+}

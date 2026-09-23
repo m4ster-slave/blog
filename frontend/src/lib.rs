@@ -8,6 +8,7 @@ mod pages;
 mod utils;
 
 use crate::components::blog_post::BlogPost;
+use crate::components::footer::Footer;
 use crate::components::navbar::Navbar;
 use crate::pages::about::About;
 use crate::pages::admin_panel::AdminPanel;
@@ -18,6 +19,8 @@ use crate::pages::edit_post::EditPost;
 use crate::pages::home::Home;
 use crate::pages::login::Login;
 use crate::pages::not_found::NotFound;
+use crate::pages::privacy::Privacy;
+use crate::pages::tos::Tos;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -43,8 +46,12 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/admin") view=AdminPanel/>
                     <Route path=path!("/admin/create") view=CreatePost/>
                     <Route path=path!("/admin/edit") view=EditPost/>
+                    <Route path=path!("/privacy") view=Privacy/>
+                    <Route path=path!("/tos") view=Tos/>
                 </Routes>
             </Router>
         </main>
+
+        <Footer />
     }
 }
