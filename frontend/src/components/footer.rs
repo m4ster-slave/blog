@@ -18,6 +18,9 @@ pub fn Footer() -> impl IntoView {
                 <a href="/tos" class="link-reset">
                     <span>tos</span>
                 </a>
+                <a href="/contact" class="link-reset">
+                    <span>contact</span>
+                </a>
             </div>
 
             <div class="footer_socials">

@@ -13,6 +13,7 @@ use crate::components::navbar::Navbar;
 use crate::pages::about::About;
 use crate::pages::admin_panel::AdminPanel;
 use crate::pages::blog::Blog;
+use crate::pages::contact::Contact;
 use crate::pages::create_post::CreatePost;
 use crate::pages::devlog::Devlog;
 use crate::pages::edit_post::EditPost;
@@ -49,6 +50,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/admin/edit") view=EditPost/>
                     <Route path=path!("/privacy") view=Privacy/>
                     <Route path=path!("/tos") view=Tos/>
+                    <Route path=path!("/contact") view=Contact/>
                     <Route path=path!("/stats") view=Stats/>
                 </Routes>
             </Router>
