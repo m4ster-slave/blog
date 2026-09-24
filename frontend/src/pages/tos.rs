@@ -1,8 +1,11 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 
 #[component]
 pub fn Tos() -> impl IntoView {
     view! {
+        <Title text="Terms of Service | Lukiana's Blog" />
+        <Meta name="description" content="Review the terms governing use of Lukiana's blog and its content." />
         <main class="legal-container">
             <header class="legal-header">
                 <p class="legal-eyebrow">"cat tos.md"</p>
@@ -41,7 +44,7 @@ pub fn Tos() -> impl IntoView {
                         "You may not reproduce, redistribute, or exploit anything on here for commercial purposes, or use
                         website content inappropriately."
                     </p>
-                    <img src="./memes/sharing_data_meme.webp"></img>
+                    <img src="./memes/sharing_data_meme.webp" alt="Meme about sharing data" width="280" height="350" loading="lazy" />
                 </section>
 
                 <section>
@@ -61,7 +64,7 @@ pub fn Tos() -> impl IntoView {
                         secure, or free from errors."
                     </p>
 
-                    <img src="./memes/testing_in_prod_meme.webp"></img>
+                    <img src="./memes/testing_in_prod_meme.webp" alt="Meme about testing in production" width="350" height="350" loading="lazy" />
                 </section>
 
                 <section>
@@ -88,7 +91,7 @@ pub fn Tos() -> impl IntoView {
                         me through the contact information provided on this website."
                     </p>
                 </section>
-                <img src="./memes/terms_and_conditions_meme.webp"></img>
+                <img src="./memes/terms_and_conditions_meme.webp" alt="Terms and conditions meme" width="290" height="350" loading="lazy" />
             </article>
         </main>
     }

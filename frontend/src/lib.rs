@@ -30,9 +30,17 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Html attr:lang="en" attr:dir="ltr" attr:data-theme="dark" />
-        <Title text="Blog" />
+        <Title text="Lukiana's Blog" />
         <Meta charset="UTF-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <Meta name="description" content="Lukiana's personal blog about art, technology, music, software, and life." />
+        <Meta property="og:title" content="Lukiana's Blog" />
+        <Meta property="og:description" content="Lukiana's personal blog about art, technology, music, software, and life." />
+        <Meta property="og:type" content="website" />
+        <Meta property="og:url" content="https://blog.weger.dev/" />
+        <Meta name="twitter:card" content="summary_large_image" />
+        <Meta name="twitter:title" content="Lukiana's Blog" />
+        <Meta name="twitter:description" content="Lukiana's personal blog about art, technology, music, software, and life." />
 
         <Navbar />
 

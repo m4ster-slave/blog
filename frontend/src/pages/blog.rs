@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 use leptos_router::hooks::query_signal;
 
 use crate::components::blog_list::BlogList;
@@ -10,6 +11,8 @@ pub fn Blog() -> impl IntoView {
     let increment = move |_| set_count.set(Some(count.get().unwrap_or(0) + 1));
 
     view! {
+        <Title text="Blog Posts | Lukiana's Blog" />
+        <Meta name="description" content="Read Lukiana's latest writing about technology, art, music, software, and life." />
         <ErrorBoundary fallback=|errors| {
             view! {
                 <h1>"Uh oh! Something went wrong!"</h1>

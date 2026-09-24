@@ -1,8 +1,11 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 
 #[component]
 pub fn About() -> impl IntoView {
     view! {
+        <Title text="About Lukiana | Lukiana's Blog" />
+        <Meta name="description" content="Learn more about Lukiana, her interests in software, cyber security, open source, and music." />
         <ErrorBoundary fallback=|errors| {
             view! {
                 <h1>"Uh oh! Something went wrong!"</h1>
@@ -24,7 +27,7 @@ pub fn About() -> impl IntoView {
                         <div class="person-header">
                             <h1>About me</h1>
                             <div class="person-image">
-                                <img src="./profile-image.jpg" alt="Lukiana" />
+                                <img src="./profile-image.jpg" alt="Portrait of Lukiana" width="508" height="680" />
                             </div>
                         </div>
 
@@ -38,18 +41,18 @@ pub fn About() -> impl IntoView {
 
                         <div class="gif-buttons">
                             <div class="gif-row">
-                                <img src="./gifs/acab.gif" alt="acab" />
-                                <img src="./gifs/antifa.gif" alt="antifa" />
-                                <img src="./gifs/archlinux.gif" alt="archlinux" />
-                                <img src="./gifs/transbian.svg" alt="transbian" />
-                                <img src="./gifs/neovim.gif" alt="neovim" />
+                                <img src="./gifs/acab.gif" alt="ACAB badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/antifa.gif" alt="Antifa badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/archlinux.gif" alt="Arch Linux badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/transbian.svg" alt="Transbian badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/neovim.gif" alt="Neovim badge" width="88" height="31" loading="lazy" />
                             </div>
                             <div class="gif-row">
-                                <img src="./gifs/paws.gif" alt="paws" />
-                                <img src="./gifs/tranarchy.gif" alt="tranarchy" />
-                                <img src="./gifs/transistor_cafe.gif" alt="transistor_cafe" />
-                                <img src="./gifs/tsis.gif" alt="tsis" />
-                                <img src="./gifs/tyg.gif" alt="tyg" />
+                                <img src="./gifs/paws.gif" alt="Paws badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/tranarchy.gif" alt="Tranarchy badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/transistor_cafe.gif" alt="Transistor Cafe badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/tsis.gif" alt="TSIS badge" width="88" height="31" loading="lazy" />
+                                <img src="./gifs/tyg.gif" alt="TYG badge" width="88" height="31" loading="lazy" />
                             </div>
                         </div>
 

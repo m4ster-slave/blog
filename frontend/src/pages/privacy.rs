@@ -1,8 +1,11 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 
 #[component]
 pub fn Privacy() -> impl IntoView {
     view! {
+        <Title text="Privacy Policy | Lukiana's Blog" />
+        <Meta name="description" content="Read the privacy policy for Lukiana's blog and learn how anonymous usage and technical data are handled." />
         <main class="legal-container">
                 <header class="legal-header">
                     <p class="legal-eyebrow">"cat privacy_policy.md"</p>
@@ -20,7 +23,7 @@ pub fn Privacy() -> impl IntoView {
                     </p>
                 </section>
 
-                <img src="./memes/privacy_policy_meme.webp"></img>
+                <img src="./memes/privacy_policy_meme.webp" alt="Privacy policy meme" width="350" height="350" loading="lazy" />
 
                 <section>
                     <h2>"2. Information I Collect"</h2>

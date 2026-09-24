@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 use leptos::web_sys::SubmitEvent;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
@@ -213,6 +214,8 @@ pub fn Devlog() -> impl IntoView {
     };
 
     view! {
+        <Title text="Development Log | Lukiana's Blog" />
+        <Meta name="description" content="Development notes and progress updates from Lukiana's projects." />
         <ErrorBoundary fallback=|errors| {
             view! {
                 <h1>"Uh oh! Something went wrong!"</h1>

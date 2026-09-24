@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 use leptos_router::hooks::use_params_map;
 use reqwasm::http::Request;
 
@@ -44,8 +45,17 @@ pub fn BlogPost() -> impl IntoView {
             {move || match post_resource.get() {
                 Some(Ok(post)) => {
                     let content = post.content.as_deref().unwrap_or("");
+                    let title = post.title.clone();
+                    let description = post.summary.clone();
 
                     view! {
+                    <Title text=format!("{} | Lukiana's Blog", title) />
+                    <Meta name="description" content=description.clone() />
+                    <Meta property="og:title" content=title.clone() />
+                    <Meta property="og:description" content=description.clone() />
+                    <Meta property="og:type" content="article" />
+                    <Meta name="twitter:title" content=title />
+                    <Meta name="twitter:description" content=description />
                     <article class="blog-post-content">
                         <header class="blog-post-content_header">
                             <h1>{post.title}</h1>

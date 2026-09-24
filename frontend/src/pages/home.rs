@@ -1,8 +1,11 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 
 #[component]
 pub fn Home() -> impl IntoView {
     view! {
+        <Title text="Lukiana's Blog" />
+        <Meta name="description" content="Lukiana's personal corner of the web, with writing about art, technology, music, software, and life." />
         <ErrorBoundary fallback=|errors| {
             view! {
                 <h1>"Uh oh! Something went wrong!"</h1>

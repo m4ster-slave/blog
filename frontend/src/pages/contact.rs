@@ -1,8 +1,11 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 
 #[component]
 pub fn Contact() -> impl IntoView {
     view! {
+        <Title text="Contact Lukiana | Lukiana's Blog" />
+        <Meta name="description" content="Find contact details and Lukiana's public PGP key." />
         <main class="legal-container">
                 <header class="legal-header">
                     <p class="legal-eyebrow">"ping lukiana.gay"</p>

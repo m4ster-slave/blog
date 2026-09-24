@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_meta::{Meta, Title};
 use leptos::wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{window, Response};
@@ -24,6 +25,8 @@ pub fn Stats() -> impl IntoView {
     let wasm_size = LocalResource::new(get_wasm_size);
 
     view! {
+        <Title text="Site Stats | Lukiana's Blog" />
+        <Meta name="description" content="View technical and usage statistics for Lukiana's blog." />
         <ErrorBoundary fallback=|errors| {
             view! {
                 <h1>"Uh oh! Something went wrong!"</h1>
