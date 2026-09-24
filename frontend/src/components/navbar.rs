@@ -23,6 +23,9 @@ pub fn Navbar() -> impl IntoView {
                 <a href="/devlog" class="link-reset">
                     devlog
                 </a>
+                <a href="/stats" class="link-reset">
+                    stats
+                </a>
                 {move || match auth_status.get() {
                 Some(Ok(true)) => view! {
                     <a href="/admin" class="link-reset">

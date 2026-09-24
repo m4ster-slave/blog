@@ -13,6 +13,8 @@ pub struct Post {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub archived: bool,
+    pub word_count: i32,
+    pub modify_count: i32,
 }
 
 #[derive(Serialize)]

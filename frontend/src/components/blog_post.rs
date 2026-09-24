@@ -1,18 +1,18 @@
-use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use reqwasm::http::Request;
 
 use crate::models::post::Post;
 
-fn format_date(date_str: &str) -> String {
-    match DateTime::parse_from_rfc3339(date_str) {
-        Ok(datetime) => {
-            let utc_datetime: DateTime<Utc> = datetime.with_timezone(&Utc);
-            utc_datetime.format("%B %d, %Y").to_string()
-        }
-        Err(_) => date_str.to_string(), // Fallback to original string if parsing fails
-    }
+fn estimate_read_time(content: &str) -> u32 {
+    const WORDS_PER_MINUTE: f64 = 220.0;
+    const SECONDS_PER_IMAGE: f64 = 12.0;
+
+    let word_count = content.split_whitespace().count() as f64;
+    let image_count = content.matches("img").count() as f64;
+
+    let minutes = (word_count / WORDS_PER_MINUTE) + (image_count * SECONDS_PER_IMAGE / 60.0);
+    minutes.ceil().max(1.0) as u32
 }
 
 async fn fetch_post_by_slug(slug: String) -> Result<Post, String> {
@@ -42,21 +42,27 @@ pub fn BlogPost() -> impl IntoView {
     view! {
         <div class="blog-post">
             {move || match post_resource.get() {
-                Some(Ok(post)) => view! {
+                Some(Ok(post)) => {
+                    let content = post.content.as_deref().unwrap_or("");
+
+                    view! {
                     <article class="blog-post-content">
                         <header class="blog-post-content_header">
                             <h1>{post.title}</h1>
                             <div class="blog-post-content_meta">
-                                <p><b>published: {post.published_at.unwrap().to_string()}</b></p>
-                                <p>created: {post.created_at.to_string()}</p>
-                                <p>updated: {post.updated_at.to_string()}</p>
+                                <p><b>"published: " {post.published_at.unwrap().to_string()}</b></p>
+                                <p>"created: " {post.created_at.to_string()}</p>
+                                <p>"updated: " {post.updated_at.to_string()}</p>
+                                <p>"read time estimate: ~" {estimate_read_time(content)} " min"</p>
+                                <p>"word count: " {post.word_count} </p>
+                                <p>"times modified: " {post.modify_count} </p>
                             </div>
                         </header>
                         <hr></hr>
-                        <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(&post.content.unwrap())}>
+                        <div class="blog-post-content_body" inner_html={crate::utils::markdown_to_html(content)} >
                         </div>
                     </article>
-                }.into_any(),
+                }.into_any()},
 
                 Some(Err(e)) => view! {
                     <div class="error-message">

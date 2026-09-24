@@ -25,6 +25,20 @@ pub struct CreatePostBody {
     content: String,
 }
 
+fn count_words(markdown: &str) -> i32 {
+    use pulldown_cmark::{Event, Parser};
+
+    let sum: usize = Parser::new(markdown)
+        .filter_map(|event| match event {
+            Event::Text(text) => Some(text),
+            _ => None,
+        })
+        .map(|text| text.split_whitespace().count())
+        .sum();
+
+    sum as i32
+}
+
 pub async fn get_posts(
     State(state): State<Arc<AppState>>,
     Query(pagination): Query<crate::models::pagination::Pagination>,
@@ -78,7 +92,9 @@ pub async fn get_post_by_slug(
             content,
             published_at,
             created_at,
-            updated_at
+            updated_at,
+            word_count,
+            modify_count
         FROM posts
         WHERE slug = $1
             AND archived = false
@@ -88,7 +104,11 @@ pub async fn get_post_by_slug(
     .bind(slug)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        println!("Error getting post list: {}", e);
+
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let post = match post {
         Some(p) => p,
@@ -114,9 +134,10 @@ pub async fn create_post(
         title,
         slug,
         summary,
+        word_count,
         content
     )
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     "#,
     )
     .bind(id)
@@ -124,6 +145,7 @@ pub async fn create_post(
     .bind(post_data.title)
     .bind(post_data.slug)
     .bind(post_data.summary)
+    .bind(count_words(&post_data.content))
     .bind(post_data.content)
     .execute(&state.pool)
     .await
@@ -175,15 +197,17 @@ pub async fn edit_post(
         title = $2,
         slug = $3,
         summary = $4,
-        content = $5,
+        word_count = $5,
+        content = $6,
         updated_at = NOW()
-    WHERE id = $6
+    WHERE id = $7
     "#,
     )
     .bind(post_data.archived)
     .bind(post_data.title)
     .bind(post_data.slug)
     .bind(post_data.summary)
+    .bind(count_words(&post_data.content))
     .bind(post_data.content)
     .bind(id)
     .execute(&state.pool)
@@ -273,7 +297,9 @@ pub async fn get_post_by_slug_admin(
             content,
             published_at,
             created_at,
-            updated_at
+            updated_at,
+            word_count,
+            modify_count
         FROM posts
         WHERE id = $1
         ORDER BY created_at DESC

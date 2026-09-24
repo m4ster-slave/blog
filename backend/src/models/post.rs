@@ -14,6 +14,8 @@ pub struct Post {
     pub published_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub word_count: i32,
+    pub modify_count: i32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]

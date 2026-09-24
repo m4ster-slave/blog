@@ -8,4 +8,5 @@ pub mod home;
 pub mod login;
 pub mod not_found;
 pub mod privacy;
+pub mod stats;
 pub mod tos;

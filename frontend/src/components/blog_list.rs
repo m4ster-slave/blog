@@ -3,13 +3,13 @@ use leptos_router::components::A;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
 
-use crate::models::post::Post;
+use crate::models::post::{Post, PostSummary};
 
-async fn fetch_posts(page: i32) -> Result<Vec<Post>, String> {
+async fn fetch_posts(page: i32) -> Result<Vec<PostSummary>, String> {
     let url = format!("/api/posts?page={}", page);
     let resp = Request::get(&url).send().await.map_err(|e| e.to_string())?;
     let json = resp.text().await.map_err(|e| e.to_string())?;
-    let posts: Vec<Post> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
+    let posts: Vec<PostSummary> = serde_json::from_str(&json).map_err(|e| e.to_string())?;
     Ok(posts)
 }
 
