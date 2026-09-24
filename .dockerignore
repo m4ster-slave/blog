@@ -2,8 +2,10 @@
 .gitignore
 .gitattributes
 README.md
-target/
-dist/
+**/target/
+**/dist/
+backend/flycheck*/
+frontend/flycheck*/
 *.log
 .env
 .env.local

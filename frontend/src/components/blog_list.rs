@@ -3,7 +3,7 @@ use leptos_router::components::A;
 use leptos_router::hooks::query_signal;
 use reqwasm::http::Request;
 
-use crate::models::post::{Post, PostSummary};
+use crate::models::post::PostSummary;
 
 async fn fetch_posts(page: i32) -> Result<Vec<PostSummary>, String> {
     let url = format!("/api/posts?page={}", page);

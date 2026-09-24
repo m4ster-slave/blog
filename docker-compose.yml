@@ -1,15 +1,38 @@
-version: '3.8'
-
 services:
+  postgres:
+    container_name: blog-postgres
+    image: postgres:16-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-blog}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-blog}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+    networks:
+      - blog-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
   backend:
+    container_name: blog-backend
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: blog-backend
-    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      - RUST_LOG=info
-      - PORT=8080
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@postgres:5432/${POSTGRES_DB:-blog}
+      PORT: 8080
+      RUST_LOG: info
     networks:
       - blog-network
     healthcheck:
@@ -18,13 +41,44 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  postgres-backup:
+    container_name: blog-postgres-backup
+    image: prodrigestivill/postgres-backup-local:16
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-blog}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+    volumes:
+      - postgres-backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blog-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
 
   frontend:
+    container_name: blog-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: blog-frontend
-    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
@@ -37,7 +91,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
 networks:
   blog-network:
     driver: bridge
+
+volumes:
+  postgres-data:
+  postgres-backups:
