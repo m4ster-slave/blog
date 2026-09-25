@@ -5,7 +5,7 @@ use axum::{Json, http::StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
 
-use crate::AppState;
+use crate::{AppState, stats};
 
 #[derive(Debug, Deserialize)]
 pub struct DevlogBody {

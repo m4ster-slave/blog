@@ -73,3 +73,6 @@ rewrite = "/api/admin/posts"
 [[proxy]]
 backend = "http://127.0.0.1:3000/devlog/entries"
 rewrite = "/api/devlog/entries"
+[[proxy]]
+backend = "http://127.0.0.1:3000/stats"
+rewrite = "/api/stats"

@@ -1,0 +1,294 @@
+.stats-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+}
+
+.stats-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  h1 {
+    font-size: 2.5rem;
+    color: #f1f5f9;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+}
+
+.stats-telemetry-bar {
+  background-color: #34363a;
+  border: 1px solid #374151;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  .telemetry-item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+
+    .telemetry-label {
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .telemetry-value {
+      color: #9367ea;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+  }
+}
+
+.stats-section-title {
+  margin-top: 1rem;
+  border-bottom: 2px solid #57329F;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  h2 {
+    font-size: 1.5rem;
+    color: #f1f5f9;
+    font-weight: 600;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+
+  &.content-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+.stat-card {
+  background-color: #34363a;
+  border: 1px solid #374151;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  .stat-value {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: #f1f5f9;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
+    border-color: #57329F;
+  }
+}
+
+.stats-table-wrapper {
+  background-color: #34363a;
+  border: 1px solid #374151;
+  border-radius: 1rem;
+  overflow-x: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+
+  th,
+  td {
+    padding: 1rem 1.25rem;
+  }
+
+  th {
+    color: #f1f5f9;
+    font-weight: 600;
+    border-bottom: 2px solid #57329F;
+  }
+
+  td {
+    color: #cbd5e1;
+    border-bottom: 1px solid #374151;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(87, 50, 159, 0.15);
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.stats-loading,
+.stats-error {
+  padding: 3rem;
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 1.2rem;
+  background-color: #34363a;
+  border-radius: 1rem;
+  border: 1px solid #374151;
+}
+
+.stats-error {
+  color: #f87171;
+  border-color: #7f1d1d;
+
+  ul {
+    margin-top: 1rem;
+    list-style: disc inside;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.stats-graph {
+  background-color: #34363a;
+  border: 1px solid #374151;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  aside {
+    background-color: green;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    font-family: 'Courier New', monospace;
+
+    // axis lines (the two arrows forming the L-shape)
+    ._chartistry_axis_marker {
+      stroke: #57329F;
+    }
+
+    // vertical gridlines
+    ._chartistry_grid_line_x line {
+      stroke: #3f4148;
+    }
+
+    // horizontal gridlines
+    ._chartistry_grid_line_y line {
+      stroke: #3f4148;
+    }
+
+    // axis tick numbers/day labels
+    ._chartistry_tick_label text {
+      fill: #94a3b8;
+      font-family: 'Courier New', monospace;
+    }
+
+    // "Daily Activity" title above the chart
+    ._chartistry_rotated_label text {
+      fill: #f1f5f9;
+      font-weight: 600;
+    }
+
+    // the two line paths
+    ._chartistry_line path {
+      stroke-width: 2;
+    }
+
+    ._chartistry_line_markers circle {
+      r: 3;
+    }
+  }
+}
+
+.stats-graph-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  padding-left: 0.5rem;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+  }
+}
+
+._chartistry_tooltip {
+  background-color: #1a1a1a !important;
+  border: 1px solid #374151 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.5);
+  font-family: 'Courier New', monospace !important;
+
+  h2 {
+    color: #94a3b8 !important;
+    font-weight: 500;
+    font-size: 0.8rem !important;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.4rem !important;
+    border-bottom: 1px solid #374151;
+  }
+
+  table {
+    tr td {
+      color: #f1f5f9 !important;
+    }
+  }
+
+  ._chartistry_snippet {
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+  }
+}
