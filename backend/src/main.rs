@@ -12,6 +12,7 @@ mod devlog_entries;
 mod models;
 mod posts;
 mod stats;
+mod files;
 
 struct AppState {
     pool: PgPool,
