@@ -1,7 +1,7 @@
 use anyhow::Ok;
 use axum::{
     Router, middleware,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -9,10 +9,10 @@ use std::sync::Arc;
 mod auth;
 mod database;
 mod devlog_entries;
+mod files;
 mod models;
 mod posts;
 mod stats;
-mod files;
 
 struct AppState {
     pool: PgPool,
@@ -63,6 +63,11 @@ async fn main() -> anyhow::Result<()> {
             "/devlog/entries/{id}",
             put(devlog_entries::edit_devlog_entry).delete(devlog_entries::delete_devlog_entry),
         )
+        .route(
+            "/admin/files",
+            get(files::get_file_entries).post(files::create_file),
+        )
+        .route("/admin/files/{id}", delete(files::delete_file_entry))
         .with_state(app_state.clone())
         .layer(middleware::from_fn_with_state(
             app_state.clone(),
@@ -79,13 +84,12 @@ async fn main() -> anyhow::Result<()> {
 
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(15));
-        println!("tokio task spawned");
+        println!("Flush Interval for page stats spawned");
 
         interval.tick().await;
 
         loop {
             interval.tick().await;
-            println!("flushing stats");
 
             stats::flush(&stats_state.pool, &stats_state.request_stats).await;
         }
