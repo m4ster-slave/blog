@@ -15,6 +15,7 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
+use tracing::error;
 
 #[derive(Default, Clone, Copy)]
 pub struct DailyCounters {
@@ -68,7 +69,7 @@ pub async fn flush(pool: &PgPool, counters: &RequestStats) {
     let mut tx = match pool.begin().await {
         Ok(tx) => tx,
         Err(error) => {
-            println!("Stats transaction failed: {}", error);
+            error!(error = %error, "stats transaction failed");
             counters.restore(batch);
             return;
         }
@@ -98,7 +99,7 @@ pub async fn flush(pool: &PgPool, counters: &RequestStats) {
         .await;
 
         if let Err(error) = result {
-            println!("Stats flush failed: {}", error);
+            error!(error = %error, "stats flush failed");
 
             let _ = tx.rollback().await;
             counters.restore(batch);
@@ -107,7 +108,7 @@ pub async fn flush(pool: &PgPool, counters: &RequestStats) {
     }
 
     if let Err(error) = tx.commit().await {
-        println!("Stats commit failed: {}", error);
+        error!(error = %error, "stats commit failed");
         counters.restore(batch);
     }
 }
@@ -190,7 +191,10 @@ pub async fn stats_aggregator(
     )
     .fetch_one(pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|error| {
+        error!(error = %error, status = 500, "failed to fetch content statistics");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let devlog_entries_count: (i64,) = sqlx::query_as(
         r#"
@@ -199,7 +203,10 @@ pub async fn stats_aggregator(
     )
     .fetch_one(pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|error| {
+        error!(error = %error, status = 500, "failed to fetch devlog statistics");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let content_stats = ContentStats {
         published_posts: content.0,
@@ -248,7 +255,10 @@ pub async fn stats_aggregator(
     )
     .fetch_all(pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|error| {
+        error!(error = %error, status = 500, "failed to fetch daily statistics");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let daily: Vec<DailyStats> = daily_rows
         .into_iter()

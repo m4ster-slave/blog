@@ -1,6 +1,12 @@
 use pulldown_cmark::{html, Options, Parser};
 use reqwasm::http::Request;
 
+pub fn confirm(message: &str) -> bool {
+    web_sys::window()
+        .and_then(|window| window.confirm_with_message(message).ok())
+        .unwrap_or(false)
+}
+
 pub async fn is_admin() -> Result<bool, String> {
     let resp = Request::get("/api/admin/check")
         .send()

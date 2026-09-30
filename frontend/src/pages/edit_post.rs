@@ -4,6 +4,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::models::post::{Post, PostSummary};
+use crate::utils;
 
 async fn fetch_admin_posts() -> Result<Vec<PostSummary>, String> {
     let resp = Request::get("/api/admin/posts")
@@ -163,6 +164,7 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
     let summary = RwSignal::new(String::new());
     let content = RwSignal::new(String::new());
     let archived = RwSignal::new(false);
+    let was_archived = RwSignal::new(false);
     let loaded = RwSignal::new(false);
     let saving = RwSignal::new(false);
     let save_error = RwSignal::new(None::<String>);
@@ -175,12 +177,28 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
                 summary.set(post.summary.clone());
                 content.set(post.content.clone().unwrap_or_default());
                 archived.set(post.archived);
+                was_archived.set(post.archived);
                 loaded.set(true);
             }
         }
     });
 
     let submit = move |_| {
+        if archived.get() != was_archived.get() {
+            let action = if archived.get() { "Archive" } else { "Unarchive" };
+            let visibility = if archived.get() {
+                "It will no longer be publicly visible."
+            } else {
+                "It may become publicly visible."
+            };
+            if !utils::confirm(&format!(
+                "{action} '{}'? {visibility}",
+                title.get()
+            )) {
+                return;
+            }
+        }
+
         let payload = UpdatePostPayload {
             title: title.get(),
             slug: slug.get(),
@@ -207,6 +225,13 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
     };
 
     let delete = move |_| {
+        if !utils::confirm(&format!(
+            "Delete '{}'? This cannot be undone.",
+            title.get()
+        )) {
+            return;
+        }
+
         saving.set(true);
         save_error.set(None);
         leptos::task::spawn_local(async move {
@@ -219,6 +244,13 @@ fn PostEditor(id: Uuid, on_close: Callback<()>, on_saved: Callback<()>) -> impl 
     };
 
     let publish = move |_| {
+        if !utils::confirm(&format!(
+            "Publish '{}'? It will become publicly visible.",
+            title.get()
+        )) {
+            return;
+        }
+
         saving.set(true);
         save_error.set(None);
         leptos::task::spawn_local(async move {

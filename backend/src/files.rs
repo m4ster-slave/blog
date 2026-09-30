@@ -14,6 +14,7 @@ use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 
 use crate::AppState;
+use tracing::{error, info};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum AllowedMime {
@@ -249,7 +250,7 @@ pub async fn get_file_entries(
     .fetch_all(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error getting file entries: {}", e);
+        error!(error = %e, status = 500, "failed to fetch file entries");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -275,14 +276,6 @@ pub async fn create_file(
         bytes,
     }: ValidatedBody,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, created a file entry", auth.user.username);
-    println!(
-        "Successfully received {:?} payload of size {} bytes -> {}",
-        mime,
-        bytes.len(),
-        filename
-    );
-
     let hash = fast_std_hash(&bytes);
     let id = uuid::Uuid::new_v4();
     sqlx::query(
@@ -307,7 +300,7 @@ pub async fn create_file(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Errror: {e}");
+        error!(user = %auth.user.username, error = %e, status = 500, "failed to create file record");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -317,19 +310,19 @@ pub async fn create_file(
 
     let file_result: Result<(), StatusCode> = async {
         tokio::fs::create_dir_all(&target_dir).await.map_err(|e| {
-            println!("Failed to create target dir: {}", e);
+            error!(error = %e, status = 500, "failed to create file directory");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
         let mut file = tokio::fs::File::create(&destination_path)
             .await
             .map_err(|e| {
-                println!("Failed to create file: {}", e);
+                error!(error = %e, status = 500, "failed to create file");
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
 
         file.write_all(&bytes).await.map_err(|e| {
-            println!("Failed to write file bytes: {}", e);
+            error!(error = %e, status = 500, "failed to write file");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -341,6 +334,8 @@ pub async fn create_file(
         delete_entry_query(id, &state.pool).await?;
         return Err(status);
     }
+
+    info!(user = %auth.user.username, kind = mime.get_kind(), bytes = bytes.len(), status = 201, "uploaded file");
 
     Ok((StatusCode::CREATED, Json(id)))
 }
@@ -356,7 +351,7 @@ async fn delete_entry_query(id: uuid::Uuid, pool: &PgPool) -> Result<(), StatusC
     .execute(pool)
     .await
     .map_err(|e| {
-        println!("Error deleting file entry: {}", e);
+        error!(error = %e, status = 500, "failed to fetch file for deletion");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -374,8 +369,6 @@ pub async fn delete_file_entry(
     auth: AuthUser,
     Path(id): Path<uuid::Uuid>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, deleted a devlog entry", auth.user.username);
-
     let file_record = sqlx::query_as::<_, FileRecordDel>(
         r#"
         SELECT kind, sha256 
@@ -387,7 +380,7 @@ pub async fn delete_file_entry(
     .fetch_optional(&state.pool)
     .await
     .map_err(|e| {
-        println!("Database query error: {}", e);
+        error!(file_id = %id, error = %e, status = 500, "failed to fetch file record");
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .ok_or(StatusCode::NOT_FOUND)?;
@@ -398,10 +391,12 @@ pub async fn delete_file_entry(
 
     if target_dir.exists() {
         tokio::fs::remove_dir_all(&target_dir).await.map_err(|e| {
-            println!("Failed to remove directory {:?}: {}", target_dir, e);
+            error!(file_id = %id, error = %e, status = 500, "failed to remove file directory");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
     }
+
+    info!(user = %auth.user.username, file_id = %id, status = 204, "deleted file");
 
     delete_entry_query(id, &state.pool).await?;
 

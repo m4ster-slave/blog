@@ -61,6 +61,7 @@ services:
           memory: 512M
     volumes:
       - media-data:/app/media
+      - logs-data:/app/logs
 
   postgres-backup:
     container_name: blog-postgres-backup
@@ -127,6 +128,7 @@ networks:
     driver: bridge
 
 volumes:
+  logs-data:
   postgres-data:
   postgres-backups:
   media-data:

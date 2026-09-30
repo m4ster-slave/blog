@@ -5,6 +5,7 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::{File, HtmlInputElement};
 
 use crate::models::file::FileEntry;
+use crate::utils;
 
 async fn fetch_entries() -> Result<Vec<FileEntry>, String> {
     let resp = Request::get("/api/admin/files")
@@ -213,12 +214,9 @@ pub fn FileEntries() -> impl IntoView {
                                 let del_id = id.clone();
                                 let name = file.original_name.clone();
                                 let on_delete = move |_| {
-                                    let confirmed = web_sys::window()
-                                        .and_then(|w| {
-                                            w.confirm_with_message(&format!("Delete {name}?")).ok()
-                                        })
-                                        .unwrap_or(false);
-                                    if !confirmed {
+                                    if !utils::confirm(&format!(
+                                        "Delete '{name}'? This cannot be undone."
+                                    )) {
                                         return;
                                     }
                                     let del_id = del_id.clone();
@@ -241,15 +239,13 @@ pub fn FileEntries() -> impl IntoView {
                                 view! {
                                     <li class="file-entry">
                                         <h3 class="file-title">{file.original_name.clone()}</h3>
-                                        <p class="file-path"><a href={path.clone()}>{path.clone()}</a></p>
+                                        <p class="file-path"><a href={path.clone()} rel="external">{path.clone()}</a></p>
                                         <div class="file-meta">
                                             <div class="file-meta_byte-mime">
                                                 <p class="file-meta-bytes">{human_size(file.bytes)}</p>
                                                 <p class="file-meta-mime">" / " {file.mime.clone()}</p>
                                             </div>
-                                            <p class="file-meta-created_at">
-                                                {file.created_at.to_string()}
-                                            </p>
+                                            <p class="file-meta-created_at">{file.created_at.to_string()}</p>
                                         </div>
                                         <div class="file-actions">
                                             <button on:click=on_copy>

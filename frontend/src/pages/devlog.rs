@@ -77,6 +77,10 @@ pub fn AdminEntry(entry: DevlogEntry, on_delete: Callback<()>) -> impl IntoView 
     let delete_entry_fn = StoredValue::new({
         let entry_id = entry_id.clone();
         move |_| {
+            if !utils::confirm("Delete this devlog entry? This cannot be undone.") {
+                return;
+            }
+
             let id = entry_id.clone();
             leptos::task::spawn_local(async move {
                 match delete_entry(id).await {

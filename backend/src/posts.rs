@@ -7,6 +7,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::AppState;
+use tracing::{error, info};
 
 #[derive(Debug, Deserialize)]
 pub struct EditPostQuery {
@@ -70,7 +71,7 @@ pub async fn get_posts(
     .fetch_all(&state.pool)
     .await
     .map_err(|e| {
-        println!("Fetch error on posts: {}", e);
+        error!(error = %e, status = 500, "failed to fetch published posts");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -101,11 +102,11 @@ pub async fn get_post_by_slug(
         ORDER BY created_at DESC
         "#,
     )
-    .bind(slug)
+    .bind(&slug)
     .fetch_optional(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error getting post list: {}", e);
+        error!(slug = %slug, error = %e, status = 500, "failed to fetch post");
 
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -123,8 +124,6 @@ pub async fn create_post(
     auth: AuthUser,
     Json(post_data): Json<CreatePostBody>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, created a post", auth.user.username);
-
     let id = uuid::Uuid::new_v4();
     sqlx::query(
         r#"
@@ -150,9 +149,11 @@ pub async fn create_post(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Errror: {e}");
+        error!(user = %auth.user.username, post_id = %id, error = %e, status = 500, "failed to create post");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, post_id = %id, status = 201, "created post");
 
     Ok((StatusCode::CREATED, Json(id)))
 }
@@ -162,8 +163,6 @@ pub async fn delete_post(
     auth: AuthUser,
     Path(id): Path<Uuid>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, deleted a post", auth.user.username);
-
     sqlx::query(
         r#"
             DELETE FROM posts
@@ -174,9 +173,11 @@ pub async fn delete_post(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error deleting post: {}", e);
+        error!(user = %auth.user.username, post_id = %id, error = %e, status = 500, "failed to delete post");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, post_id = %id, status = 204, "deleted post");
 
     Ok((StatusCode::NO_CONTENT, Json(id)))
 }
@@ -187,8 +188,6 @@ pub async fn edit_post(
     Path(id): Path<Uuid>,
     Json(post_data): Json<EditPostQuery>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, edited a post", auth.user.username);
-
     sqlx::query(
         r#"
     UPDATE posts
@@ -213,9 +212,11 @@ pub async fn edit_post(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error updating post: {e}");
+        error!(user = %auth.user.username, post_id = %id, error = %e, status = 500, "failed to update post");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, post_id = %id, status = 200, "updated post");
 
     Ok((StatusCode::OK, Json(id)))
 }
@@ -225,8 +226,6 @@ pub async fn publish_post(
     auth: AuthUser,
     Path(id): Path<uuid::Uuid>,
 ) -> Result<StatusCode, StatusCode> {
-    println!("The user {}, published a post", auth.user.username);
-
     let result = sqlx::query(
         r#"
         UPDATE posts
@@ -241,13 +240,15 @@ pub async fn publish_post(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error publishing post: {e}");
+        error!(user = %auth.user.username, post_id = %id, error = %e, status = 500, "failed to publish post");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
     }
+
+    info!(user = %auth.user.username, post_id = %id, status = 200, "published post");
 
     Ok(StatusCode::OK)
 }
@@ -274,7 +275,7 @@ pub async fn get_posts_admin(
     .fetch_all(&state.pool)
     .await
     .map_err(|e| {
-        println!("Fetch error on posts: {}", e);
+        error!(error = %e, status = 500, "failed to fetch admin posts");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -309,7 +310,7 @@ pub async fn get_post_by_slug_admin(
     .fetch_optional(&state.pool)
     .await
     .map_err(|e| {
-        println! {"Admin route failed to get post by id: {}", e};
+        error!(post_id = %id, error = %e, status = 500, "failed to fetch admin post");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 

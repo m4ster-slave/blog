@@ -18,13 +18,22 @@
   &_links {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 2rem;
     /* Adds space between the two buttons */
     width: 100%;
     max-width: 800px;
+
     /* Adjusts maximum width of button group */
+    &-sub {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      width: 100%;
+      /* Forces this row to wrap onto a new line */
+    }
 
     a {
       flex: 1;

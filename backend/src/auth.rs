@@ -14,6 +14,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{AppState, models::user::User};
+use tracing::{error, info, warn};
 
 /// Holding struct for authenticated user data inside protected handlers
 #[derive(Debug)]
@@ -31,7 +32,10 @@ impl FromRequestParts<Arc<AppState>> for AuthUser {
         // 1. Extract cookies from request headers
         let jar = CookieJar::from_request_parts(parts, state)
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|error| {
+                error!(error = ?error, status = 500, "failed to parse authentication cookies");
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
         // 2. Read session cookie
         let session_cookie = jar.get("session").ok_or(StatusCode::UNAUTHORIZED)?;
@@ -51,7 +55,7 @@ impl FromRequestParts<Arc<AppState>> for AuthUser {
         .fetch_optional(&state.pool)
         .await
         .map_err(|e| {
-            println!("Auth DB Error: {}", e);
+            error!(error = %e, "auth database lookup failed");
             StatusCode::INTERNAL_SERVER_ERROR
         })?
         .ok_or(StatusCode::UNAUTHORIZED)?;
@@ -84,7 +88,7 @@ async fn find_user(credentials: &CredentialBody, pool: &PgPool) -> Result<User, 
     .fetch_one(pool)
     .await
     .map_err(|e| {
-        println!("Error finding user: {}", e);
+        error!(user = %credentials.username, error = %e, "user lookup failed");
         StatusCode::INTERNAL_SERVER_ERROR
     })
 }
@@ -114,11 +118,11 @@ pub async fn login(
     if !argon2_verify(&credentials.password, &user.password_hash)
         .await
         .map_err(|e| {
-            println!("Error verifying hash: {}", e);
+            error!(user = %credentials.username, error = %e, "password verification failed");
             StatusCode::INTERNAL_SERVER_ERROR
         })?
     {
-        println!("User unauthorized");
+        warn!(user = %credentials.username, "login failed");
         return Err(StatusCode::UNAUTHORIZED);
     }
 
@@ -135,7 +139,7 @@ pub async fn login(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error creating session: {}", e);
+        error!(user = %user.username, error = %e, "session creation failed");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -146,6 +150,8 @@ pub async fn login(
     cookie.set_same_site(SameSite::Lax);
 
     let jar = jar.add(cookie);
+
+    info!(user = %user.username, status = 200, "login succeeded");
 
     Ok((jar, StatusCode::OK))
 }
@@ -170,7 +176,7 @@ pub async fn logout(
         .execute(&state.pool)
         .await
         .map_err(|e| {
-            println!("Error deleting session: {}", e);
+            error!(error = %e, "session deletion failed");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
     }
@@ -196,7 +202,7 @@ pub async fn check_session(
         .fetch_one(&state.pool)
         .await
         .map_err(|e| {
-            println!("Error finding session: {e}");
+            error!(error = %e, "session lookup failed");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 

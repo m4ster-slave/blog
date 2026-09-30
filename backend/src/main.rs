@@ -1,4 +1,3 @@
-use anyhow::Ok;
 use axum::{
     Router, middleware,
     routing::{delete, get, post, put},
@@ -11,17 +10,34 @@ mod database;
 mod devlog_entries;
 mod files;
 mod models;
+mod logs;
 mod posts;
 mod stats;
 
 struct AppState {
     pool: PgPool,
     request_stats: stats::RequestStats,
+    log_dir: std::path::PathBuf,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
+
+    let log_dir = std::env::var_os("LOG_DIR")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| std::path::PathBuf::from("./logs"));
+    std::fs::create_dir_all(&log_dir)?;
+    let file_appender = tracing_appender::rolling::daily(&log_dir, "backend");
+    let (file_writer, _log_guard) = tracing_appender::non_blocking(file_appender);
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"));
+    use tracing_subscriber::prelude::*;
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(tracing_subscriber::fmt::layer().with_writer(std::io::stdout).with_ansi(false))
+        .with(tracing_subscriber::fmt::layer().with_writer(file_writer).with_ansi(false))
+        .init();
 
     let db_url = std::env::var("DATABASE_URL")?;
     let pool: PgPool = database::establish_connection(&db_url)
@@ -35,6 +51,7 @@ async fn main() -> anyhow::Result<()> {
     let app_state = Arc::new(AppState {
         pool,
         request_stats: stats::RequestStats::default(),
+        log_dir,
     });
 
     let app = Router::new()
@@ -55,6 +72,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/stats", get(stats::stats_aggregator))
         .route("/logout", post(auth::logout))
         .route("/admin/check", get(auth::check_session))
+        .route("/admin/logs", get(logs::get_logs))
         .route(
             "/devlog/entries",
             get(devlog_entries::get_devlog_entries).post(devlog_entries::create_devlog_entry),
@@ -76,7 +94,7 @@ async fn main() -> anyhow::Result<()> {
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let addr = format!("0.0.0.0:{}", port);
-    println!("Starting server on {}", addr);
+    tracing::info!(%addr, "starting server");
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
@@ -84,7 +102,7 @@ async fn main() -> anyhow::Result<()> {
 
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(15));
-        println!("Flush Interval for page stats spawned");
+        tracing::info!("stats flush task started");
 
         interval.tick().await;
 

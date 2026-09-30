@@ -6,6 +6,7 @@ use serde::Deserialize;
 use std::sync::Arc;
 
 use crate::AppState;
+use tracing::{error, info};
 
 #[derive(Debug, Deserialize)]
 pub struct DevlogBody {
@@ -37,7 +38,10 @@ pub async fn get_devlog_entries(
     .bind(offset)
     .fetch_all(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|error| {
+        error!(error = %error, status = 500, "failed to fetch devlog entries");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok((StatusCode::OK, Json(entries)))
 }
@@ -47,8 +51,6 @@ pub async fn create_devlog_entry(
     auth: AuthUser,
     Json(entry_data): Json<DevlogBody>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, created a devlog entry", auth.user.username);
-
     let id = uuid::Uuid::new_v4();
     sqlx::query(
         r#"
@@ -64,9 +66,11 @@ pub async fn create_devlog_entry(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Errror: {e}");
+        error!(user = %auth.user.username, entry_id = %id, error = %e, status = 500, "failed to create devlog entry");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, entry_id = %id, status = 201, "created devlog entry");
 
     Ok((StatusCode::CREATED, Json(id)))
 }
@@ -76,8 +80,6 @@ pub async fn delete_devlog_entry(
     auth: AuthUser,
     Path(id): Path<uuid::Uuid>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, deleted a devlog entry", auth.user.username);
-
     sqlx::query(
         r#"
             DELETE FROM devlog_entries 
@@ -88,9 +90,11 @@ pub async fn delete_devlog_entry(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error deleting devlog_entry: {}", e);
+        error!(user = %auth.user.username, entry_id = %id, error = %e, status = 500, "failed to delete devlog entry");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, entry_id = %id, status = 204, "deleted devlog entry");
 
     Ok((StatusCode::NO_CONTENT, Json(id)))
 }
@@ -101,8 +105,6 @@ pub async fn edit_devlog_entry(
     Path(id): Path<uuid::Uuid>,
     Json(entry_data): Json<DevlogBody>,
 ) -> Result<(StatusCode, Json<uuid::Uuid>), StatusCode> {
-    println!("The user {}, edited a devlog entry", auth.user.username);
-
     sqlx::query(
         r#"
     UPDATE devlog_entries
@@ -117,9 +119,11 @@ pub async fn edit_devlog_entry(
     .execute(&state.pool)
     .await
     .map_err(|e| {
-        println!("Error updating devlog_entry: {e}");
+        error!(user = %auth.user.username, entry_id = %id, error = %e, status = 500, "failed to update devlog entry");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    info!(user = %auth.user.username, entry_id = %id, status = 200, "updated devlog entry");
 
     Ok((StatusCode::OK, Json(id)))
 }
