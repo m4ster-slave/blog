@@ -33,6 +33,7 @@ async fn delete_entry(id: String) -> Result<String, String> {
     let url = format!("/api/devlog/entries/{}", id);
     let resp = Request::delete(&url)
         .header("Content-Type", "application/json")
+        .header("X-CSRF-Token", &utils::csrf_token())
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -55,6 +56,7 @@ async fn update_entry(id: String, payload: UpdateEntryPayload) -> Result<String,
     let body = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
     let resp = Request::put(&url)
         .header("Content-Type", "application/json")
+        .header("X-CSRF-Token", &utils::csrf_token())
         .body(body)
         .send()
         .await
@@ -193,6 +195,7 @@ pub fn Devlog() -> impl IntoView {
 
                 let response = Request::post("/api/devlog/entries")
                     .header("Content-Type", "application/json")
+                    .header("X-CSRF-Token", &utils::csrf_token())
                     .body(body)
                     .send()
                     .await

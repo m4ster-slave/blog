@@ -2,7 +2,7 @@ use crate::auth::AuthUser;
 use axum::extract::{Path, State};
 use axum::{Json, http::StatusCode};
 use axum::{
-    body::Bytes,
+    body::{Bytes, to_bytes},
     extract::FromRequest,
     http::{Request, header},
 };
@@ -15,6 +15,8 @@ use tokio::io::AsyncWriteExt;
 
 use crate::AppState;
 use tracing::{error, info};
+
+const MAX_UPLOAD_BYTES: usize = 32 * 1024 * 1024;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum AllowedMime {
@@ -156,7 +158,7 @@ where
 
     async fn from_request(
         req: Request<axum::body::Body>,
-        state: &S,
+        _state: &S,
     ) -> Result<Self, Self::Rejection> {
         // 1. Fast Content-Type check (Header phase)
         let raw_mime = req
@@ -177,9 +179,9 @@ where
         let filename = sanitize_filename(&raw_filename);
 
         // 2. Stream body bytes (up to max payload limit, e.g., 2MB)
-        let bytes = Bytes::from_request(req, state)
+        let bytes = to_bytes(req.into_body(), MAX_UPLOAD_BYTES)
             .await
-            .map_err(|_| StatusCode::BAD_REQUEST)?;
+            .map_err(|_| StatusCode::PAYLOAD_TOO_LARGE)?;
 
         // 3. Inspect magic bytes / UTF-8
         let sample_len = bytes.len().min(512);

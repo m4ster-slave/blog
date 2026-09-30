@@ -21,6 +21,7 @@ async fn fetch_entries() -> Result<Vec<FileEntry>, String> {
 
 async fn delete_entry(id: String) -> Result<(), String> {
     let resp = Request::delete(&format!("/api/admin/files/{}", id))
+        .header("X-CSRF-Token", &utils::csrf_token())
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -73,6 +74,7 @@ async fn upload_file(file: File) -> Result<(), String> {
 
     let resp = Request::post("/api/admin/files")
         .header("Content-Type", &mime)
+        .header("X-CSRF-Token", &utils::csrf_token())
         .header(
             "Content-Disposition",
             &format!("attachment; filename=\"{}\"", name),

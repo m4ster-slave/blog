@@ -42,6 +42,7 @@ async fn update_post(id: Uuid, payload: UpdatePostPayload) -> Result<String, Str
     let body = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
     let resp = Request::put(&url)
         .header("Content-Type", "application/json")
+        .header("X-CSRF-Token", &utils::csrf_token())
         .body(body)
         .send()
         .await
@@ -57,6 +58,7 @@ async fn delete_post(id: Uuid) -> Result<String, String> {
     let url = format!("/api/admin/posts/{}", id);
     let resp = Request::delete(&url)
         .header("Content-Type", "application/json")
+        .header("X-CSRF-Token", &utils::csrf_token())
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -73,6 +75,7 @@ async fn publish_post(id: Uuid) -> Result<(), String> {
     let url = format!("/api/admin/posts/{}/publish", id);
     let resp = Request::post(&url)
         .header("Content-Type", "application/json")
+        .header("X-CSRF-Token", &utils::csrf_token())
         .send()
         .await
         .map_err(|e| e.to_string())?;

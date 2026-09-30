@@ -4,6 +4,7 @@ use leptos_router::hooks::use_navigate;
 use reqwasm::http::Request;
 
 use crate::models::post::*;
+use crate::utils;
 
 #[component]
 pub fn CreatePost() -> impl IntoView {
@@ -43,6 +44,7 @@ pub fn CreatePost() -> impl IntoView {
 
                 let response = Request::post("/api/admin/posts")
                     .header("Content-Type", "application/json")
+                    .header("X-CSRF-Token", &utils::csrf_token())
                     .body(body)
                     .send()
                     .await

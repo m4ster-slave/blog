@@ -1,16 +1,18 @@
 use argon2::{Argon2, PasswordHash, password_hash::PasswordVerifier};
 use axum::Json;
-use axum::extract::State;
+use axum::extract::{Request, State};
+use axum::middleware::Next;
 use axum::response::IntoResponse;
 use axum::{
     extract::FromRequestParts,
-    http::{StatusCode, request::Parts},
+    http::{Method, StatusCode, request::Parts},
 };
 use axum_extra::extract::CookieJar;
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use serde::Deserialize;
 use sqlx::PgPool;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 use crate::{AppState, models::user::User};
@@ -20,6 +22,60 @@ use tracing::{error, info, warn};
 #[derive(Debug)]
 pub struct AuthUser {
     pub user: User,
+}
+
+pub struct LoginAttempt {
+    pub window_started: Instant,
+    pub failures: u32,
+}
+
+const LOGIN_WINDOW: Duration = Duration::from_secs(15 * 60);
+const MAX_LOGIN_FAILURES: u32 = 5;
+
+pub async fn csrf_middleware(request: Request, next: Next) -> axum::response::Response {
+    let is_state_changing = matches!(
+        *request.method(),
+        Method::POST | Method::PUT | Method::PATCH | Method::DELETE
+    );
+
+    let cookie_header = request
+        .headers()
+        .get(axum::http::header::COOKIE)
+        .and_then(|value| value.to_str().ok());
+    let cookie_token = cookie_header.and_then(|cookies| {
+        cookies.split(';').find_map(|cookie| {
+            cookie
+                .trim()
+                .strip_prefix("csrf_token=")
+                .map(str::to_owned)
+        })
+    });
+
+    if is_state_changing && request.uri().path() != "/login" {
+        let header_token = request
+            .headers()
+            .get("x-csrf-token")
+            .and_then(|value| value.to_str().ok());
+
+        if cookie_token.as_deref() != header_token {
+            return StatusCode::FORBIDDEN.into_response();
+        }
+    }
+
+    let mut response = next.run(request).await;
+    if cookie_token.is_none() {
+        let mut csrf_cookie = Cookie::new("csrf_token", Uuid::new_v4().to_string());
+        csrf_cookie.set_path("/");
+        csrf_cookie.set_secure(false); // TODO when production is HTTPS-only
+        csrf_cookie.set_same_site(SameSite::Lax);
+        if let Ok(value) = csrf_cookie.to_string().parse() {
+            response
+                .headers_mut()
+                .append(axum::http::header::SET_COOKIE, value);
+        }
+    }
+
+    response
 }
 
 impl FromRequestParts<Arc<AppState>> for AuthUser {
@@ -70,7 +126,7 @@ pub struct CredentialBody {
     password: String,
 }
 
-async fn find_user(credentials: &CredentialBody, pool: &PgPool) -> Result<User, StatusCode> {
+async fn find_user(credentials: &CredentialBody, pool: &PgPool) -> Result<Option<User>, StatusCode> {
     sqlx::query_as::<_, User>(
         r#"
         SELECT
@@ -85,12 +141,57 @@ async fn find_user(credentials: &CredentialBody, pool: &PgPool) -> Result<User, 
         "#,
     )
     .bind(&credentials.username)
-    .fetch_one(pool)
+    .fetch_optional(pool)
     .await
     .map_err(|e| {
         error!(user = %credentials.username, error = %e, "user lookup failed");
         StatusCode::INTERNAL_SERVER_ERROR
     })
+}
+
+fn login_is_rate_limited(state: &AppState, username: &str) -> bool {
+    let mut attempts = state
+        .login_attempts
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let now = Instant::now();
+
+    match attempts.get(username) {
+        Some(attempt)
+            if now.duration_since(attempt.window_started) < LOGIN_WINDOW
+                && attempt.failures >= MAX_LOGIN_FAILURES => true,
+        Some(attempt) if now.duration_since(attempt.window_started) >= LOGIN_WINDOW => {
+            attempts.remove(username);
+            false
+        }
+        _ => false,
+    }
+}
+
+fn record_login_failure(state: &AppState, username: &str) {
+    let mut attempts = state
+        .login_attempts
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let now = Instant::now();
+    let attempt = attempts.entry(username.to_owned()).or_insert(LoginAttempt {
+        window_started: now,
+        failures: 0,
+    });
+
+    if now.duration_since(attempt.window_started) >= LOGIN_WINDOW {
+        attempt.window_started = now;
+        attempt.failures = 0;
+    }
+    attempt.failures = attempt.failures.saturating_add(1);
+}
+
+fn clear_login_failures(state: &AppState, username: &str) {
+    let mut attempts = state
+        .login_attempts
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    attempts.remove(username);
 }
 
 async fn argon2_verify(
@@ -113,7 +214,18 @@ pub async fn login(
     jar: CookieJar,
     Json(credentials): Json<CredentialBody>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let user = find_user(&credentials, &state.pool).await?;
+    if login_is_rate_limited(&state, &credentials.username) {
+        return Err(StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    let user = match find_user(&credentials, &state.pool).await? {
+        Some(user) => user,
+        None => {
+            record_login_failure(&state, &credentials.username);
+            warn!(user = %credentials.username, "login failed");
+            return Err(StatusCode::UNAUTHORIZED);
+        }
+    };
 
     if !argon2_verify(&credentials.password, &user.password_hash)
         .await
@@ -122,9 +234,12 @@ pub async fn login(
             StatusCode::INTERNAL_SERVER_ERROR
         })?
     {
+        record_login_failure(&state, &credentials.username);
         warn!(user = %credentials.username, "login failed");
         return Err(StatusCode::UNAUTHORIZED);
     }
+
+    clear_login_failures(&state, &credentials.username);
 
     let session_id = uuid::Uuid::new_v4();
 
@@ -149,7 +264,12 @@ pub async fn login(
     cookie.set_secure(false); //TODO when production set to true
     cookie.set_same_site(SameSite::Lax);
 
-    let jar = jar.add(cookie);
+    let mut csrf_cookie = Cookie::new("csrf_token", uuid::Uuid::new_v4().to_string());
+    csrf_cookie.set_path("/");
+    csrf_cookie.set_secure(false); // TODO when production set to true
+    csrf_cookie.set_same_site(SameSite::Lax);
+
+    let jar = jar.add(cookie).add(csrf_cookie);
 
     info!(user = %user.username, status = 200, "login succeeded");
 

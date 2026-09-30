@@ -3,7 +3,10 @@ use axum::{
     routing::{delete, get, post, put},
 };
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 mod auth;
 mod database;
@@ -18,6 +21,7 @@ struct AppState {
     pool: PgPool,
     request_stats: stats::RequestStats,
     log_dir: std::path::PathBuf,
+    login_attempts: Mutex<HashMap<String, auth::LoginAttempt>>,
 }
 
 #[tokio::main]
@@ -52,6 +56,7 @@ async fn main() -> anyhow::Result<()> {
         pool,
         request_stats: stats::RequestStats::default(),
         log_dir,
+        login_attempts: Mutex::new(HashMap::new()),
     });
 
     let app = Router::new()
@@ -87,6 +92,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .route("/admin/files/{id}", delete(files::delete_file_entry))
         .with_state(app_state.clone())
+        .layer(middleware::from_fn(auth::csrf_middleware))
         .layer(middleware::from_fn_with_state(
             app_state.clone(),
             stats::request_middleware,

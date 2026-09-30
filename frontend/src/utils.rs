@@ -1,5 +1,6 @@
 use pulldown_cmark::{html, Options, Parser};
 use reqwasm::http::Request;
+use wasm_bindgen::JsCast;
 
 pub fn confirm(message: &str) -> bool {
     web_sys::window()
@@ -17,6 +18,22 @@ pub async fn is_admin() -> Result<bool, String> {
         200 => Ok(true),
         _ => Ok(false),
     }
+}
+
+pub fn csrf_token() -> String {
+    web_sys::window()
+        .and_then(|window| window.document())
+        .and_then(|document| document.dyn_into::<web_sys::HtmlDocument>().ok())
+        .and_then(|document| document.cookie().ok())
+        .and_then(|cookies| {
+            cookies.split(';').find_map(|cookie| {
+                cookie
+                    .trim()
+                    .strip_prefix("csrf_token=")
+                    .map(str::to_owned)
+            })
+        })
+        .unwrap_or_default()
 }
 
 pub fn markdown_to_html(markdown: &str) -> String {
