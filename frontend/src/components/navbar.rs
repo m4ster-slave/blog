@@ -37,7 +37,7 @@ pub fn Navbar() -> impl IntoView {
             </div>
 
             <div class="navbar_back">
-                <img src="./logo.svg" alt="Trans pride flag" width="88" height="31" />
+                <img src="/logo.svg" alt="Trans pride flag" width="88" height="31" />
             </div>
         </nav>
     }

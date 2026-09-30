@@ -12,8 +12,9 @@ pub fn AdminPanel() -> impl IntoView {
                     <section class="page-section admin-panel">
                         <h1>"Admin panel"</h1>
                         <div class="admin-panel_links">
-                            <a href="/admin/edit">Edit a post</a>
-                            <a href="/admin/create">Create a new post</a>
+                            <a href="/admin/edit">edit post</a>
+                            <a href="/admin/create">new post</a>
+                            <a href="/admin/files">view files</a>
                         </div>
                     </section>
                 }.into_any(),

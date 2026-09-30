@@ -17,6 +17,7 @@ use crate::pages::contact::Contact;
 use crate::pages::create_post::CreatePost;
 use crate::pages::devlog::Devlog;
 use crate::pages::edit_post::EditPost;
+use crate::pages::file_management::FileEntries;
 use crate::pages::home::Home;
 use crate::pages::login::Login;
 use crate::pages::not_found::NotFound;
@@ -56,6 +57,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/admin") view=AdminPanel/>
                     <Route path=path!("/admin/create") view=CreatePost/>
                     <Route path=path!("/admin/edit") view=EditPost/>
+                    <Route path=path!("/admin/files") view=FileEntries/>
                     <Route path=path!("/privacy") view=Privacy/>
                     <Route path=path!("/tos") view=Tos/>
                     <Route path=path!("/contact") view=Contact/>

@@ -5,6 +5,7 @@ pub mod contact;
 pub mod create_post;
 pub mod devlog;
 pub mod edit_post;
+pub mod file_management;
 pub mod home;
 pub mod login;
 pub mod not_found;

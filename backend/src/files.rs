@@ -1,5 +1,4 @@
 use crate::auth::AuthUser;
-use crate::models::devlog::Devlog;
 use axum::extract::{Path, State};
 use axum::{Json, http::StatusCode};
 use axum::{

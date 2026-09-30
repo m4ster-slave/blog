@@ -31,7 +31,7 @@ pub fn Login() -> impl IntoView {
             let result = async {
                 let body = serde_json::to_string(&body).map_err(|e| e.to_string())?;
 
-                let response = Request::post("/api/admin/login")
+                let response = Request::post("/api/login")
                     .header("Content-Type", "application/json")
                     .body(body)
                     .send()
