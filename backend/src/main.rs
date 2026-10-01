@@ -43,10 +43,11 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer().with_writer(file_writer).with_ansi(false))
         .init();
 
-    let db_url = std::env::var("DATABASE_URL")?;
-    let pool: PgPool = database::establish_connection(&db_url)
-        .await
-        .expect("Database connection failed");
+    let pool: PgPool = match std::env::var("DATABASE_URL") {
+        Ok(db_url) => database::establish_connection(&db_url).await,
+        Err(_) => database::establish_connection_from_env().await,
+    }
+    .expect("Database connection failed");
 
     database::run_migrations(&pool)
         .await
