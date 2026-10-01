@@ -9,8 +9,8 @@ release = false
 dist = "dist"
 # The public URL from which assets are to be served.
 public_url = "/"
-# Whether to include hash values in the output file names.
-filehash = false 
+# Include content hashes so browsers do not reuse stale immutable assets after a deployment.
+filehash = true
 # Whether to inject scripts (and module preloads) into the finalized output.
 inject_scripts = true
 # Run without network access
