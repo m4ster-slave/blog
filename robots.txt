@@ -50,4 +50,4 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://blog.weger.dev/sitemap.xml
